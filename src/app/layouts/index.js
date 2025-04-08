@@ -2,6 +2,7 @@ export const SCREEN = Object.freeze({
     SIGNUP: 'Signup',
     LOGIN: 'login',
     HOME: 'login',
+    ENTERY_SCREEN:`entry`
 
     // FORGOT_PASSWORD: 'ForgotPassword',
     // STEP1: 'Step1',

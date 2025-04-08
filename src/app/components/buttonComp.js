@@ -2,6 +2,7 @@ import React from 'react';
 import { TouchableOpacity, View, Text, Image, StyleSheet, ActivityIndicator } from 'react-native';
 import { COLORS } from '../../res/colors';
 import { scale, verticalScale } from 'react-native-size-matters';
+import TextComp from './textComp';
 
 const ButtonComp = ({
   title,
@@ -33,7 +34,7 @@ const ButtonComp = ({
       ) : (
         <View style={styles.content}>
           {image && <Image source={image} style={[styles.image, imageStyle]} resizeMode="contain" />}
-          <Text style={[styles.text, textStyle]}>{title}</Text>
+          <TextComp style={[styles.text, textStyle]}>{title}</TextComp>
         </View>
       )}
     </TouchableOpacity>
@@ -58,9 +59,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   text: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    color: COLORS.primaryTextColor,
+    fontSize: scale(14),
+    fontWeight: '500',
   },
   image: {
     width: 20,
