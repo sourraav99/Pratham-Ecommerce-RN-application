@@ -23,7 +23,7 @@ import { DarkTheme, DefaultTheme } from "@react-navigation/native";
 //       transparent: 'transparent',
 //     },
 //   };
-  
+
 //   export const darkTheme = {
 //     dark: true,
 //     colors: {
@@ -45,51 +45,53 @@ import { DarkTheme, DefaultTheme } from "@react-navigation/native";
 //       transparent: 'transparent',
 //     },
 //   };
-  
+
 
 
 export const COLORS = {
     // ...DefaultTheme,
-//    colors:{
+    //    colors:{
     // ...DefaultTheme.colors,
     primaryAppColor: 'rgba(51, 168, 168, 1)',
+    primaryAppColorOpacity: (val) => `rgba(51, 168, 168, ${val})`,
     secondaryAppColor: 'rgba(0, 0, 0, 1)',
     primaryTextColor: 'rgba(71, 85, 105, 1)',
     secondaryTextColor: 'rgba(100, 116, 139, 1) ',
     borderColor: 'rgba(226, 232, 240, 1)',
     background: 'rgba(255, 255, 255, 1)',
     white: 'rgb(255, 255, 255)',
-    yellow:' rgba(255, 178, 0, 1)',
-    red:`rgba(255, 42, 42, 1)`,
-    green:`rgba(6, 124, 0, 1)`,
+    yellow: ' rgba(255, 178, 0, 1)',
+    blue: `rgba(60, 154, 251, 1)`,
+    red: `rgba(255, 42, 42, 1)`,
+    green: `rgba(6, 124, 0, 1)`,
     whiteOpacity: (value) => `rgba(255, 255, 255, ${value})`,
     black: 'rgb(0, 0, 0)',
     blackOpacity: (value) => `rgba(0, 0, 0, ${value})`,
     greyOpacity: (value) => `rgba(108, 108, 108, ${value})`,
     primaryOpacity: (value) => `rgba(45,96,173,${value})`,
     transparent: 'transparent',
-//    }
+    //    }
 };
 
 export const darkTheme = {
     ...DarkTheme,
-   colors:{
-    ...DarkTheme.colors,
-    primaryAppColor:'rgba(51, 168, 168, 1)',
-    secondaryAppColor: 'rgba(0, 0, 0, 1)',
-    primaryTextColor: 'rgba(71, 85, 105, 1)',
-    secondaryTextColor: 'rgba(100, 116, 139, 1) ',
-    borderColor: 'rgba(226, 232, 240, 1)',
-    background: 'rgba(255, 255, 255, 1)',
-    white: 'rgb(255, 255, 255)',
-    yellow:' rgba(255, 178, 0, 1)',
-    red:`rgba(255, 42, 42, 1)`,
-    green:`rgba(6, 124, 0, 1)`,
-    whiteOpacity: (value) => `rgba(255, 255, 255, ${value})`,
-    black: 'rgb(0, 0, 0)',
-    blackOpacity: (value) => `rgba(0, 0, 0, ${value})`,
-    greyOpacity: (value) => `rgba(108, 108, 108, ${value})`,
-    primaryOpacity: (value) => `rgba(45,96,173,${value})`,
-    transparent: 'transparent',
-   }
+    colors: {
+        ...DarkTheme.colors,
+        primaryAppColor: 'rgba(51, 168, 168, 1)',
+        secondaryAppColor: 'rgba(0, 0, 0, 1)',
+        primaryTextColor: 'rgba(71, 85, 105, 1)',
+        secondaryTextColor: 'rgba(100, 116, 139, 1) ',
+        borderColor: 'rgba(226, 232, 240, 1)',
+        background: 'rgba(255, 255, 255, 1)',
+        white: 'rgb(255, 255, 255)',
+        yellow: ' rgba(255, 178, 0, 1)',
+        red: `rgba(255, 42, 42, 1)`,
+        green: `rgba(6, 124, 0, 1)`,
+        whiteOpacity: (value) => `rgba(255, 255, 255, ${value})`,
+        black: 'rgb(0, 0, 0)',
+        blackOpacity: (value) => `rgba(0, 0, 0, ${value})`,
+        greyOpacity: (value) => `rgba(108, 108, 108, ${value})`,
+        primaryOpacity: (value) => `rgba(45,96,173,${value})`,
+        transparent: 'transparent',
+    }
 };

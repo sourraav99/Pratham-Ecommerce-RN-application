@@ -20,6 +20,8 @@ const TextInputComp = ({
   style,
   inputStyle,
   labelStyle,
+  customBorderColor,
+  customContainerStyle,
   ...props
 }) => {
   const [isSecure, setIsSecure] = useState(secureTextEntry);
@@ -30,7 +32,7 @@ const TextInputComp = ({
         {label}
       </TextComp>
     )}
-    <View style={[styles.container, { borderColor: COLORS.borderColor }]}>
+  <View style={[styles.container, customContainerStyle, { borderColor: customBorderColor || COLORS.borderColor }]}>
       <TextInput
         allowFontScaling={false}
         value={value}
@@ -58,7 +60,7 @@ const TextInputComp = ({
 
 const styles = StyleSheet.create({
   label: {
-    fontSize: scale(14),
+    fontSize: scale(13),
     marginBottom: verticalScale(3),
   },
   container: {

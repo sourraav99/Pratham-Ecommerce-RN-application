@@ -5,6 +5,9 @@ import { SCREEN } from '../app/layouts';
 import Signup from '../app/layouts/signup';
 import EntryScreen from '../app/layouts/entryScreen';
 import Login from '../app/layouts/login';
+import VerifyOtp from '../app/layouts/verifyOtp';
+import ForgotPassword from '../app/layouts/forgotPassword';
+import ChangePassword from '../app/layouts/changePassword';
 
 const Stack = createNativeStackNavigator();
 const Auth = () => {
@@ -14,6 +17,9 @@ const Auth = () => {
         <Stack.Screen name={SCREEN.ENTERY_SCREEN} component={EntryScreen}/>
         <Stack.Screen name={SCREEN.SIGNUP} component={Signup}/>
         <Stack.Screen name={SCREEN.LOGIN} component={Login}/>
+        <Stack.Screen name={SCREEN.VERIFY_OTP} component={VerifyOtp}/>
+        <Stack.Screen name={SCREEN.FORGOT_PASSWORD} component={ForgotPassword}/>
+        <Stack.Screen name={SCREEN.CHANGE_PASSWORD} component={ChangePassword}/>
     </Stack.Navigator>
   )
 }

@@ -12,6 +12,9 @@ import TextInputComp from '../../components/textInputComp'
 import TextComp from '../../components/textComp'
 import Icon from '../../../utils/icon'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+import { isIOS } from '../../hooks/platform'
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Toast from 'react-native-simple-toast';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -23,15 +26,30 @@ const Login = () => {
     const navigation = useNavigation()
 
     const handleBack = () => {
-        navigation.goBack()
+        navigation.navigate(SCREEN.ENTERY_SCREEN)
     }
-    const handleLogin = () => {
-        console.log('email----->>',email);
-        console.log('password----->>',password);
-        // navigation.navigate(SCREEN.LOGIN)
+ const handleLogin = async () => {
+    if (!email || !password) {
+        Toast.show('Please enter both email and password',Toast.SHORT);
+        return;
+    }
+ 
+    try {
+        await AsyncStorage.setItem('login', 'true');
+        console.log('Login saved to AsyncStorage');
+        // navigate to the next screen, e.g.
+        navigation.navigate(SCREEN.HOME); // or whatever your next screen is
+    } catch (error) {
+        console.error('AsyncStorage error:', error);
+        Toast.show('Failed to log in. Please try again.',Toast.SHORT);
+    }
+};
+
+    const handleForgotPassword=()=>{
+        navigation.navigate(SCREEN.FORGOT_PASSWORD)
     }
     return (
-        <Wrapper useBottomInset useTopInsets={false} safeAreaContainerStyle={{}} childrenStyles={{ height: height }}>
+        <Wrapper useBottomInset useTopInsets={true} safeAreaContainerStyle={{}} childrenStyles={{ height: isIOS() ? height * 0.9 : height }}>
             <View style={{ height: verticalScale(50), width: width, alignSelf: 'center', justifyContent: 'center', paddingLeft: moderateScale(15) }}>
                 <TouchableOpacity onPress={handleBack} hitSlop={{ left: 30 }} style={{ backgroundColor: COLORS.secondaryAppColor, height: verticalScale(30), width: verticalScale(30), borderRadius: 100, alignItems: 'center', justifyContent: 'center' }}>
                     <Icon name={'arrowleft'} color={COLORS.white} size={scale(22)} type='AntDesign' />
@@ -42,9 +60,6 @@ const Login = () => {
                 showsVerticalScrollIndicator={false}
                 keyboardShouldPersistTaps="handled"
                 contentContainerStyle={{
-                    // paddingHorizontal: moderateScale(15),
-                    // width:width,
-                    // alignSelf:'center',
                     flexGrow: 1,
                 }}
             >
@@ -60,8 +75,8 @@ const Login = () => {
                     onChangeText={setPassword}
                     secureTextEntry={true}
                     showPasswordToggle={true} placeholder={'Enter your password'} label={'Password'} style={{ marginTop: verticalScale(12) }} />
-                <TouchableOpacity style={{ alignItems: 'flex-end', marginTop: verticalScale(8) }}>
-                    <TextComp>{`Forgot Password?`}</TextComp>
+                <TouchableOpacity onPress={handleForgotPassword} style={{ alignItems: 'flex-end', marginTop: verticalScale(8) }}>
+                    <TextComp style={{color:COLORS.blue}}>{`Forgot Password?`}</TextComp>
                 </TouchableOpacity>
                 <ButtonComp onPress={handleLogin} title={'Login'} buttonStyle={{ marginTop: verticalScale(40) }} textStyle={{ color: COLORS.white }} />
             </KeyboardAwareScrollView>

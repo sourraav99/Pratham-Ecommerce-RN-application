@@ -12,8 +12,10 @@ import TextInputComp from '../../components/textInputComp'
 import TextComp from '../../components/textComp'
 import Icon from '../../../utils/icon'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+import { isIOS } from '../../hooks/platform'
 
 const Signup = () => {
+  const navigation = useNavigation()
   const [keyboardVisible, setKeyboardVisible] = useState(false);
 
   // Input states
@@ -40,7 +42,7 @@ const Signup = () => {
     };
   }, []);
 
-  const navigation = useNavigation()
+
 
   const handleBack = () => {
     navigation.goBack()
@@ -62,10 +64,10 @@ const Signup = () => {
       confirmPassword,
     };
     console.log('Payload:', payload);
-    // send to API
+    navigation.navigate(SCREEN.VERIFY_OTP)
   };
   return (
-    <Wrapper useBottomInset useTopInsets={false} safeAreaContainerStyle={{}} childrenStyles={{ height: height }}>
+    <Wrapper useBottomInset={true} useTopInsets={true} safeAreaContainerStyle={{}} childrenStyles={{ height: isIOS() ? height * 0.9 : height }}>
       <View style={{ height: verticalScale(50), width: width, alignSelf: 'center', justifyContent: 'center', paddingLeft: moderateScale(15) }}>
         <TouchableOpacity onPress={handleBack} hitSlop={{ left: 30 }} style={{ backgroundColor: COLORS.secondaryAppColor, height: verticalScale(30), width: verticalScale(30), borderRadius: 100, alignItems: 'center', justifyContent: 'center' }}>
           <Icon name={'arrowleft'} color={COLORS.white} size={scale(22)} type='AntDesign' />
@@ -76,9 +78,6 @@ const Signup = () => {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{
-          // paddingHorizontal: moderateScale(15),
-          // width:width,
-          // alignSelf:'center',
           flexGrow: 1,
         }}
       >
@@ -112,8 +111,37 @@ const Signup = () => {
 
         <ButtonComp onPress={handleRegister} title={'Register'} buttonStyle={{ marginTop: verticalScale(40) }} textStyle={{ color: COLORS.white }} />
         {/* {keyboardVisible && ( */}
-          <View style={{ height:verticalScale(50) }}/>
-           
+        <TextComp style={{ fontSize: scale(11), textAlign: 'center', marginTop: verticalScale(8) }}>
+          By continuing, you agree to our{' '}
+          <TextComp
+            onPress={() => {/* handle terms of service */ }}
+            style={{
+              color:COLORS.blue,
+              fontWeight: '700',
+              fontSize: scale(12),
+              textDecorationLine: 'underline',
+              textDecorationColor:COLORS.blue,
+            }}
+          >
+            Terms of Service
+          </TextComp>{' '}
+          and{' '}
+          <TextComp
+            onPress={() => {/* handle privacy policy */ }}
+            style={{
+              color: COLORS.blue,
+              fontWeight: '700',
+              fontSize: scale(12),
+              textDecorationLine: 'underline',
+              textDecorationColor: COLORS.blue,
+            }}
+          >
+            Privacy Policy
+          </TextComp>
+        </TextComp>
+
+        <View style={{ height: verticalScale(50) }} />
+
         {/* )} */}
       </KeyboardAwareScrollView>
     </Wrapper>

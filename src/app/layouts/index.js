@@ -1,21 +1,24 @@
 export const SCREEN = Object.freeze({
     SIGNUP: 'Signup',
-    LOGIN: 'login',
-    HOME: 'login',
-    ENTERY_SCREEN:`entry`
-
-    // FORGOT_PASSWORD: 'ForgotPassword',
-    // STEP1: 'Step1',
-    // STEP2: 'Step2',
-    // STEP3: 'Step3',
-    // STEP4: 'Step4',
-    // OTP_SCREEN:'OtpScreen',
-    // RESET_PASSWORD:'ResetPassword',
-    // MAIN_SCREEN: 'MainScreen',
-    // GAMES:'Games',
-    // VENUE:'Venue',
-    // SELF_PROFILE:'SelfProfile',
-    // DISCOVER:'Discover',
-    // EDIT_SELF_PROFILE:`EditSelfProfile`,
-    // SETTINGS:'Settings'
+    LOGIN: 'Login',
+    ENTERY_SCREEN: 'Entry',
+    VERIFY_OTP: 'VerifyOtp',
+    FORGOT_PASSWORD: 'ForgotPassword',
+    CHANGE_PASSWORD: 'ChangePassword',
+    DRAWER_HOME: 'Home',       // <- Drawer screen name
+    HOME_TAB: 'Home',               // <- Drawer & Tab name
+    CATEGORIES: 'Categories',  // <- Tab name
+    CART: 'Cart',              // <- Tab name  
+    ABOUT_US: `AboutUs`,
+    CANCELATION_AND_RETURNS: `CancelationAndReturns`,
+    CONTACT_US: `ContactUs`,
+    FAVOURITES: `Favourites`,
+    LEDGER_STATEMENT: `LedgerStatement`,
+    MY_ORDERS: `MyOrders`,
+    PAYMENT_TERMS: `PaymentTerms`,
+    PENDING_BILLS: `PendingBills`,
+    SUPPORT: `Support`,
+    TERMS_AND_CONDITION: `Terms&Condition`,
+    CATEGORY_PRODUCT_SCREEN:`CategoryProductsScreen`,
+    SEARCH:`Search`
 });
