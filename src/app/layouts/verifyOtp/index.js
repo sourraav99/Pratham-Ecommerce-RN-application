@@ -2,7 +2,7 @@ import { View, Text, Image, TouchableOpacity, Keyboard } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Wrapper from '../../components/wrapper'
 import { height, width } from '../../hooks/responsive'
-import { useNavigation, useTheme } from '@react-navigation/native'
+import { useNavigation, useRoute, useTheme } from '@react-navigation/native'
 import ButtonComp from '../../components/buttonComp'
 import { IMAGES } from '../../../res/images'
 import { moderateScale, scale, verticalScale } from 'react-native-size-matters'
@@ -12,10 +12,19 @@ import TextInputComp from '../../components/textInputComp'
 import TextComp from '../../components/textComp'
 import Icon from '../../../utils/icon'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+import Toast from "react-native-simple-toast";
 import { isIOS } from '../../hooks/platform'
+import { useDispatch } from 'react-redux'
+import { loginUser } from '../../../redux/slices/authSlice'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 const VerifyOtp = () => {
     const navigation = useNavigation()
+    const route = useRoute();
+    const [otp, setOtp] = useState('');
+    const dispatch = useDispatch();
+    const email = route?.params?.email || 'example@gmail.com';
+    const comingFrom = route?.params?.comingFrom || SCREEN.SIGNUP;
     const [timeLeft, setTimeLeft] = useState(59);
     const [showResendLine, setShowResendLine] = useState(false);
 
@@ -34,6 +43,7 @@ const VerifyOtp = () => {
     }, [timeLeft]);
 
 
+
     const formatTime = (sec) => {
         const m = Math.floor(sec / 60);
         const s = sec % 60;
@@ -44,11 +54,29 @@ const VerifyOtp = () => {
     const handleBack = () => {
         navigation.goBack()
     }
-    const handleVerify = () => {
-        navigation.navigate(SCREEN.CHANGE_PASSWORD)
+    const handleVerify = async() => {
+        if (comingFrom === SCREEN.SIGNUP) {
+            // Maybe send to welcome screen or ask for profile info
+            if (otp.length !== 4) {
+                Toast.show('Please enter a 4-digit OTP');
+                return;
+              }
+              try {
+                await AsyncStorage.setItem('login', 'true');
+                dispatch(loginUser()); // this will update redux
+              } catch (error) {
+                console.error('signup Error', error);
+                Toast.show('signup failed');
+              }
+        } else if (comingFrom === SCREEN.FORGOT_PASSWORD) {
+            navigation.navigate(SCREEN.CHANGE_PASSWORD);
+        } else {
+            // Default action
+            navigation.goBack();
+        }
     };
 
-    const email = "sourabh@gmail.com"
+    // const email = "sourabh@gmail.com"
     return (
         <Wrapper useBottomInset={true} useTopInsets={true} safeAreaContainerStyle={{}} childrenStyles={{ height: isIOS() ? height * 0.9 : height }}>
             <View style={{ height: verticalScale(50), width: width, alignSelf: 'center', justifyContent: 'center', paddingLeft: moderateScale(15) }}>
@@ -76,6 +104,10 @@ const VerifyOtp = () => {
                     </TextComp>
                 </View>
                 <TextInputComp
+                    value={otp}
+                    onChangeText={setOtp}
+                    keyboardType={'numeric'}
+                    maxLength={4}
                     style={{ marginTop: verticalScale(25) }}
                     placeholder={'4 Digit Code'}
                     label={'Enter OTP'} />

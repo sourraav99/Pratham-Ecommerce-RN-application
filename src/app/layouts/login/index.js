@@ -28,22 +28,20 @@ const Login = () => {
     const handleBack = () => {
         navigation.navigate(SCREEN.ENTERY_SCREEN)
     }
- const handleLogin = async () => {
-    if (!email || !password) {
-        Toast.show('Please enter both email and password',Toast.SHORT);
-        return;
-    }
- 
-    try {
-        await AsyncStorage.setItem('login', 'true');
-        console.log('Login saved to AsyncStorage');
-        // navigate to the next screen, e.g.
-        navigation.navigate(SCREEN.HOME); // or whatever your next screen is
-    } catch (error) {
-        console.error('AsyncStorage error:', error);
-        Toast.show('Failed to log in. Please try again.',Toast.SHORT);
-    }
-};
+    const handleLogin = async () => {
+        if (!email || !password) {
+          Toast.show('Please enter both email and password');
+          return;
+        }
+      
+        try {
+          await AsyncStorage.setItem('login', 'true');
+          dispatch(loginUser()); // this will update redux
+        } catch (error) {
+          console.error('Login Error', error);
+          Toast.show('Login failed');
+        }
+      };
 
     const handleForgotPassword=()=>{
         navigation.navigate(SCREEN.FORGOT_PASSWORD)

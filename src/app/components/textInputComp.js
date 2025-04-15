@@ -22,6 +22,8 @@ const TextInputComp = ({
   labelStyle,
   customBorderColor,
   customContainerStyle,
+  keyboardType,
+  maxLength,
   ...props
 }) => {
   const [isSecure, setIsSecure] = useState(secureTextEntry);
@@ -34,6 +36,9 @@ const TextInputComp = ({
     )}
   <View style={[styles.container, customContainerStyle, { borderColor: customBorderColor || COLORS.borderColor }]}>
       <TextInput
+      keyboardType={keyboardType}
+      // keyboardType='numeric'
+      maxLength={maxLength}
         allowFontScaling={false}
         value={value}
         onChangeText={onChangeText}

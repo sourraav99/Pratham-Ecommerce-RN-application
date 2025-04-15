@@ -13,6 +13,7 @@ import TextComp from '../../components/textComp'
 import Icon from '../../../utils/icon'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { isIOS } from '../../hooks/platform'
+import Toast from 'react-native-simple-toast';
 
 const Signup = () => {
   const navigation = useNavigation()
@@ -48,23 +49,46 @@ const Signup = () => {
     navigation.goBack()
   }
   const handleRegister = () => {
+    // Trim values
     const payload = {
-      firstName,
-      lastName,
-      email,
-      mobileNumber,
-      businessName,
-      businessType,
-      gstNumber,
-      businessAddress,
-      city,
-      state,
-      postalCode,
-      password,
-      confirmPassword,
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
+      email: email.trim(),
+      mobileNumber: mobileNumber.trim(),
+      businessName: businessName.trim(),
+      businessType: businessType.trim(),
+      gstNumber: gstNumber.trim(),
+      businessAddress: businessAddress.trim(),
+      city: city.trim(),
+      state: state.trim(),
+      postalCode: postalCode.trim(),
+      password: password.trim(),
+      confirmPassword: confirmPassword.trim(),
     };
+
+    // // Validate fields
+    // for (const [key, value] of Object.entries(payload)) {
+    //   if (!value) {
+    //     const formattedKey = key
+    //       .replace(/([A-Z])/g, ' $1')
+    //       .replace(/^./, (str) => str.toUpperCase());
+    //     Toast.show(`${formattedKey} is required`);
+    //     return;
+    //   }
+    // }
+
+    // // Password match check
+    // if (payload.password !== payload.confirmPassword) {
+    //   Toast.show('Passwords do not match');
+    //   return;
+    // }
+
+    // Success
     console.log('Payload:', payload);
-    navigation.navigate(SCREEN.VERIFY_OTP)
+    navigation.navigate(SCREEN.VERIFY_OTP, {
+      email: payload.email,
+      comingFrom: SCREEN.SIGNUP,
+    });
   };
   return (
     <Wrapper useBottomInset={true} useTopInsets={true} safeAreaContainerStyle={{}} childrenStyles={{ height: isIOS() ? height * 0.9 : height }}>
@@ -87,14 +111,13 @@ const Signup = () => {
         <View style={{ flexDirection: 'row', justifyContent: 'space-evenly' }}>
           <TextInputComp
             style={{ flex: 0.95 }}
-            value={email}
-            onChangeText={setEmail}
+            value={firstName}
+            onChangeText={setFirstName}
             placeholder={'John'} label={'First Name'} />
           <View style={{ width: moderateScale(8) }} />
           <TextInputComp
-            value={password}
-            onChangeText={setPassword}
-
+            value={lastName}
+            onChangeText={setLastName}
             placeholder={'Doe'} label={'Last Name'} style={{ flex: 0.95 }} />
         </View>
         <TextInputComp value={email} onChangeText={setEmail} style={{ marginTop: verticalScale(12) }} placeholder={'Enter your email'} label={'E-mail'} />
@@ -116,11 +139,11 @@ const Signup = () => {
           <TextComp
             onPress={() => {/* handle terms of service */ }}
             style={{
-              color:COLORS.blue,
+              color: COLORS.blue,
               fontWeight: '700',
               fontSize: scale(12),
               textDecorationLine: 'underline',
-              textDecorationColor:COLORS.blue,
+              textDecorationColor: COLORS.blue,
             }}
           >
             Terms of Service

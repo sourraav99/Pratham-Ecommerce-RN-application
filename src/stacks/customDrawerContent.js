@@ -8,7 +8,10 @@ import Icon from '../utils/icon';
 import TextComp from '../app/components/textComp';
 import { GABRITO_MEDIUM } from '../../assets/fonts';
 import { SCREEN } from '../app/layouts';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { logoutUser } from '../redux/slices/authSlice';
+import Toast from "react-native-simple-toast";
+import { useDispatch } from 'react-redux';
 
 const drawerItems = [
     { label: 'Home', screen: SCREEN.DRAWER_HOME, icon: 'home', iconType: 'Feather' },
@@ -28,7 +31,16 @@ const drawerItems = [
 
 const CustomDrawerContent = (props) => {
     const navigation = useNavigation();
-
+    const dispatch = useDispatch()
+    const handleLogout = async () => {
+        try {
+            await AsyncStorage.removeItem('login'); // clear storage
+            dispatch(logoutUser()); // update redux
+            Toast.show('User Logged out',Toast.SHORT);
+        } catch (error) {
+            console.error('Logout Error:', error);
+        }
+    };
     return (
         <DrawerContentScrollView showsVerticalScrollIndicator={false} {...props} contentContainerStyle={{ flexGrow: 1 }}>
             {/* Top Profile Section */}
@@ -96,19 +108,11 @@ const CustomDrawerContent = (props) => {
             </View>
             <View style={{ padding: scale(10), marginTop: 'auto' }}>
                 <TouchableOpacity
-                    // onPress={() => {
-                    //     // You can replace this with your logout logic
-                    //     navigation.dispatch(
-                    //         CommonActions.reset({
-                    //             index: 0,
-                    //             routes: [{ name: SCREEN.LOGIN }],
-                    //         })
-                    //     );
-                    // }}
+                    onPress={handleLogout}
                     style={{
                         flexDirection: 'row',
                         alignItems: 'center',
-                        justifyContent:'center',
+                        justifyContent: 'center',
                         backgroundColor: COLORS.secondaryAppColor,
                         paddingVertical: scale(10),
                         paddingHorizontal: scale(15),
