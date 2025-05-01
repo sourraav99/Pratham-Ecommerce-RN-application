@@ -17,29 +17,60 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-simple-toast';
 import { useDispatch } from 'react-redux'
 import { loginUser } from '../../../redux/slices/authSlice'
+import { loginAction } from '../../../redux/action'
 
 const Login = () => {
     const dispatch = useDispatch()
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
     const navigation = useNavigation()
 
     const handleBack = () => {
         navigation.navigate(SCREEN.ENTERY_SCREEN)
     }
+
+    const storeToken = async (jwtToken) => {
+        try {
+            await AsyncStorage.setItem('token', jwtToken);
+            console.log('Token stored successfully:', jwtToken);
+        } catch (error) {
+            console.error('Error storing user data:', error);
+        }
+    };
+
+
+    const payload = {
+        email,
+        password
+    }
+
     const handleLogin = async () => {
         if (!email || !password) {
             Toast.show('Please enter both email and password');
             return;
         }
+        setLoading(true)
+        // console.log(payload);
+        dispatch(
+            loginAction(payload, (response) => {
+                setLoading(false)
+                if (response?.data?.status) {
+                    storeToken(response?.data?.data?.auth_token)
+                console.log(`sucessss---------->>>>>`,response?.data?.data?.auth_token);
+                } else {
+                    console.log(`rejecteddddd`,response.data);
+                }
+            })
+        )
 
-        try {
-            await AsyncStorage.setItem('login', 'true');
-            dispatch(loginUser()); // this will update redux
-        } catch (error) {
-            console.error('Login Error', error);
-            Toast.show('Login failed');
-        }
+        // try {
+        //     await AsyncStorage.setItem('login', 'true');
+        //     dispatch(loginUser()); // this will update redux
+        // } catch (error) {
+        //     console.error('Login Error', error);
+        //     Toast.show('Login failed');
+        // }
     };
 
     const handleForgotPassword = () => {
@@ -75,7 +106,7 @@ const Login = () => {
                 <TouchableOpacity onPress={handleForgotPassword} style={{ alignItems: 'flex-end', marginTop: verticalScale(8) }}>
                     <TextComp style={{ color: COLORS.blue }}>{`Forgot Password?`}</TextComp>
                 </TouchableOpacity>
-                <ButtonComp onPress={handleLogin} title={'Login'} buttonStyle={{ marginTop: verticalScale(40) }} textStyle={{ color: COLORS.white }} />
+                <ButtonComp loading={loading} onPress={handleLogin} title={'Login'} buttonStyle={{ marginTop: verticalScale(40) }} textStyle={{ color: COLORS.white }} />
             </KeyboardAwareScrollView>
         </Wrapper>
     )
