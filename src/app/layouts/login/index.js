@@ -15,14 +15,13 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { isIOS } from '../../hooks/platform'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-simple-toast';
+import { useDispatch } from 'react-redux'
+import { loginUser } from '../../../redux/slices/authSlice'
 
 const Login = () => {
+    const dispatch = useDispatch()
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-
-
-
-
     const navigation = useNavigation()
 
     const handleBack = () => {
@@ -30,20 +29,20 @@ const Login = () => {
     }
     const handleLogin = async () => {
         if (!email || !password) {
-          Toast.show('Please enter both email and password');
-          return;
+            Toast.show('Please enter both email and password');
+            return;
         }
-      
-        try {
-          await AsyncStorage.setItem('login', 'true');
-          dispatch(loginUser()); // this will update redux
-        } catch (error) {
-          console.error('Login Error', error);
-          Toast.show('Login failed');
-        }
-      };
 
-    const handleForgotPassword=()=>{
+        try {
+            await AsyncStorage.setItem('login', 'true');
+            dispatch(loginUser()); // this will update redux
+        } catch (error) {
+            console.error('Login Error', error);
+            Toast.show('Login failed');
+        }
+    };
+
+    const handleForgotPassword = () => {
         navigation.navigate(SCREEN.FORGOT_PASSWORD)
     }
     return (
@@ -74,7 +73,7 @@ const Login = () => {
                     secureTextEntry={true}
                     showPasswordToggle={true} placeholder={'Enter your password'} label={'Password'} style={{ marginTop: verticalScale(12) }} />
                 <TouchableOpacity onPress={handleForgotPassword} style={{ alignItems: 'flex-end', marginTop: verticalScale(8) }}>
-                    <TextComp style={{color:COLORS.blue}}>{`Forgot Password?`}</TextComp>
+                    <TextComp style={{ color: COLORS.blue }}>{`Forgot Password?`}</TextComp>
                 </TouchableOpacity>
                 <ButtonComp onPress={handleLogin} title={'Login'} buttonStyle={{ marginTop: verticalScale(40) }} textStyle={{ color: COLORS.white }} />
             </KeyboardAwareScrollView>

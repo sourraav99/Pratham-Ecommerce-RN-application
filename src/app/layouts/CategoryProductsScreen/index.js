@@ -1,4 +1,4 @@
-import { View, Text, FlatList, Image, TouchableOpacity } from 'react-native'
+import { View, Text, FlatList, Image, TouchableOpacity, Alert } from 'react-native'
 import React, { useState } from 'react'
 import Wrapper from '../../components/wrapper'
 import StaticeHeader from '../../components/staticeHeader'

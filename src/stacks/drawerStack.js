@@ -19,6 +19,7 @@ import { COLORS } from '../res/colors';
 import { scale } from 'react-native-size-matters';
 import { isIOS } from '../app/hooks/platform';
 import TextComp from '../app/components/textComp';
+import SelfProfile from '../app/layouts/selfProfile';
 
 const Drawer = createDrawerNavigator();
 
@@ -45,8 +46,9 @@ const DrawerStack = () => {
             initialRouteName={SCREEN.DRAWER_HOME}
         drawerContent={(props) => <CustomDrawerContent {...props} />}
         >
-
+          
             <Drawer.Screen name={SCREEN.DRAWER_HOME} component={BottomStack}options={{ drawerLabel: getDrawerLabel('Home') }}/>
+            <Drawer.Screen name={SCREEN.SELF_PROFILE} component={SelfProfile}options={{ drawerLabel: getDrawerLabel('Self Profile') }}/>
             <Drawer.Screen name={SCREEN.CATEGORIES} component={Categories} options={{ drawerLabel: getDrawerLabel('Shop by categories') }} />
             <Drawer.Screen name={SCREEN.MY_ORDERS} component={MyOrders} options={{ drawerLabel: getDrawerLabel('My Orders') }} />
             <Drawer.Screen name={SCREEN.ABOUT_US} component={AboutUs} options={{ drawerLabel: getDrawerLabel('About Us') }} />

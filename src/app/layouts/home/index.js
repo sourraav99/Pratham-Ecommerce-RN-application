@@ -213,14 +213,16 @@ const Home = () => {
         </TextComp>
 
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
-          {categories.map((cat) => (
+          {categories.map((cat) => (  
             <TouchableOpacity
+            activeOpacity={0.9}
               key={cat.id}
               onPress={() => { navigation.navigate(SCREEN.CATEGORY_PRODUCT_SCREEN, { data: cat.name }) }}
               style={{
                 width: (width - scale(13) * 2) / 4 - scale(4), // Adjusted width with scale(13) padding
                 alignItems: 'center',
                 marginVertical: verticalScale(5),
+               
               }}
             >
               <Image
@@ -231,6 +233,12 @@ const Home = () => {
                   borderRadius: scale(8),
                   borderWidth: 1,
                   borderColor: COLORS.secondaryAppColor || '#ccc',
+                  shadowColor: '#000',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.1,
+                  shadowRadius: scale(4),
+                  elevation: 7, // for Android
+                  overflow:'hidden'
                 }}
                 resizeMode="cover"
               />

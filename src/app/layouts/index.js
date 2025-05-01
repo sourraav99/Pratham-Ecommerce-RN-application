@@ -20,5 +20,7 @@ export const SCREEN = Object.freeze({
     SUPPORT: `Support`,
     TERMS_AND_CONDITION: `Terms&Condition`,
     CATEGORY_PRODUCT_SCREEN:`CategoryProductsScreen`,
-    SEARCH:`Search`
+    SEARCH:`Search`,
+    SELF_PROFILE:`selfProfile`,
+    ORDER_STATUS:'OrderStatus'
 });

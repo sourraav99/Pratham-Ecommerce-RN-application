@@ -67,3 +67,44 @@ export const productsData = [
     },
   ];
   
+
+  export const ordersResponse = {
+    success: true,
+    code: 200,
+    message: "Orders fetched successfully",
+    data: [
+      {
+        orderId: "ORD123456",
+        isCashPayment: true,
+        noOfItems: 3,
+        date: "2025-04-28",
+        time: "14:30",
+        amount: 249.99
+      },
+      {
+        orderId: "ORD123457",
+        isCashPayment: false,
+        noOfItems: 5,
+        date: "2025-04-27",
+        time: "10:15",
+        amount: 599.00
+      },
+      {
+        orderId: "ORD123458",
+        isCashPayment: true,
+        noOfItems: 2,
+        date: "2025-04-26",
+        time: "18:45",
+        amount: 149.50
+      },
+      {
+        orderId: "ORD123459",
+        isCashPayment: false,
+        noOfItems: 1,
+        date: "2025-04-25",
+        time: "09:05",
+        amount: 89.99
+      }
+    ]
+  };
+  

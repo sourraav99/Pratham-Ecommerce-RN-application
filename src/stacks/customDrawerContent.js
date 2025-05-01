@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Image, TouchableOpacity } from 'react-native';
+import { View, Image, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native';
 import { DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer';
 import { useNavigation, CommonActions } from '@react-navigation/native';
 import { moderateScale, scale } from 'react-native-size-matters';
@@ -20,7 +20,7 @@ const drawerItems = [
     { label: 'About Us', screen: SCREEN.ABOUT_US, icon: 'account-box-outline', iconType: 'MaterialCommunityIcons' },
     { label: 'Payment Terms', screen: SCREEN.PAYMENT_TERMS, icon: 'file-document-outline', iconType: 'MaterialCommunityIcons' },
     { label: 'Favourites', screen: SCREEN.FAVOURITES, icon: 'heart-outline', iconType: 'MaterialCommunityIcons' },
-    { label: 'cancellation,Returns and refund', screen: SCREEN.CANCELATION_AND_RETURNS, icon: 'backup-restore', iconType: 'MaterialCommunityIcons' },
+    { label: 'Cancellation,Returns and Refund', screen: SCREEN.CANCELATION_AND_RETURNS, icon: 'backup-restore', iconType: 'MaterialCommunityIcons' },
     { label: 'Terms and Conditions', screen: SCREEN.TERMS_AND_CONDITION, icon: 'file-document-edit-outline', iconType: 'MaterialCommunityIcons' },
     { label: 'Ledger Statement', screen: SCREEN.LEDGER_STATEMENT, icon: 'notebook-outline', iconType: 'MaterialCommunityIcons' },
     { label: 'Pending Bills Report', screen: SCREEN.PENDING_BILLS, icon: 'credit-card', iconType: 'Feather' },
@@ -36,103 +36,105 @@ const CustomDrawerContent = (props) => {
         try {
             await AsyncStorage.removeItem('login'); // clear storage
             dispatch(logoutUser()); // update redux
-            Toast.show('User Logged out',Toast.SHORT);
+            Toast.show('User Logged out', Toast.SHORT);
         } catch (error) {
             console.error('Logout Error:', error);
         }
     };
     return (
-        <DrawerContentScrollView showsVerticalScrollIndicator={false} {...props} contentContainerStyle={{ flexGrow: 1 }}>
-            {/* Top Profile Section */}
-            <TouchableOpacity style={{ backgroundColor: COLORS.secondaryAppColor, alignSelf: 'flex-end', borderRadius: 100, padding: scale(3) }} onPress={() => props.navigation.closeDrawer()}>
-                <Icon name="x" type="Feather" size={24} color={COLORS.white} />
-            </TouchableOpacity>
-            <TouchableOpacity
-                //    onPress={() => }
-                style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly', paddingVertical: scale(5) }}>
-                {/* <View style={{  flexDirection: 'row',alignItems:'center'}}> */}
-                <Image
-                    source={{ uri: 'https://i.pinimg.com/736x/e8/e6/41/e8e64141f4c0ae39c32f9701ccea9a2e.jpg' }}
-                    style={{ width: 60, height: 60, borderRadius: 30, }}
-                />
-                <View style={{ paddingRight: moderateScale(30) }}>
-                    <TextComp style={{ fontSize: scale(14), fontFamily: GABRITO_MEDIUM }}>Business Name</TextComp>
-                    <TextComp style={{ fontSize: scale(12), color: COLORS.gray }}>Customer ID: 123456</TextComp>
-                    <TextComp style={{ fontSize: scale(12), color: COLORS.gray }}>+91 9876543210</TextComp>
-                </View>
-                {/* </View> */}
-                <View style={{}} >
-                    <Icon name="caretright" type="AntDesign" size={16} />
-                </View>
-            </TouchableOpacity>
+        <SafeAreaView style={{ flex: 1 }}>
+            <DrawerContentScrollView showsVerticalScrollIndicator={false} {...props} contentContainerStyle={{ flexGrow: 1 }}>
+                {/* Top Profile Section */}
+                <TouchableOpacity style={{ backgroundColor: COLORS.secondaryAppColor, alignSelf: 'flex-end', borderRadius: 100, padding: scale(3) }} onPress={() => props.navigation.closeDrawer()}>
+                    <Icon name="x" type="Feather" size={24} color={COLORS.white} />
+                </TouchableOpacity>
+                <TouchableOpacity
+                    onPress={() => props.navigation.navigate(SCREEN.SELF_PROFILE)}
+                    style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly', paddingVertical: scale(5) }}>
+                    {/* <View style={{  flexDirection: 'row',alignItems:'center'}}> */}
+                    <Image
+                        source={{ uri: 'https://i.pinimg.com/736x/e8/e6/41/e8e64141f4c0ae39c32f9701ccea9a2e.jpg' }}
+                        style={{ width: 60, height: 60, borderRadius: 30, }}
+                    />
+                    <View style={{ paddingRight: moderateScale(30) }}>
+                        <TextComp style={{ fontSize: scale(14), fontFamily: GABRITO_MEDIUM }}>Business Name</TextComp>
+                        <TextComp style={{ fontSize: scale(12), color: COLORS.gray }}>Customer ID: 123456</TextComp>
+                        <TextComp style={{ fontSize: scale(12), color: COLORS.gray }}>+91 9876543210</TextComp>
+                    </View>
+                    {/* </View> */}
+                    <View style={{}} >
+                        <Icon name="caretright" type="AntDesign" size={16} />
+                    </View>
+                </TouchableOpacity>
 
-            {/* Drawer Items */}
-            <View style={{ marginTop: scale(10) }}>
-                {drawerItems.map((item, index) => (
-                    <DrawerItem
-                        key={index}
-                        label={({ color, focused }) => (
-                            <TextComp
-                                allowFontScaling={false}
-                                style={{
-                                    fontSize: scale(14),
-                                    fontFamily: GABRITO_MEDIUM,
-                                    paddingVertical: 0,
-                                    marginVertical: 0,
-                                    color,
-                                }}
-                            >
-                                {item.label}
-                            </TextComp>
-                        )}
-                        onPress={() => {
-                            props.navigation.navigate(item.screen);
-                        }}
-                        icon={({ color }) => (
-                            <Icon
-                                name={item.icon}
-                                type={item.iconType}
-                                size={20}
-                                color={color}
-                            />
-                        )}
+                {/* Drawer Items */}
+                <View style={{ marginTop: scale(10) }}>
+                    {drawerItems.map((item, index) => (
+                        <DrawerItem
+                            key={index}
+                            label={({ color, focused }) => (
+                                <TextComp
+                                    allowFontScaling={false}
+                                    style={{
+                                        fontSize: scale(14),
+                                        fontFamily: GABRITO_MEDIUM,
+                                        paddingVertical: 0,
+                                        marginVertical: 0,
+                                        color,
+                                    }}
+                                >
+                                    {item.label}
+                                </TextComp>
+                            )}
+                            onPress={() => {
+                                props.navigation.navigate(item.screen);
+                            }}
+                            icon={({ color }) => (
+                                <Icon
+                                    name={item.icon}
+                                    type={item.iconType}
+                                    size={20}
+                                    color={color}
+                                />
+                            )}
+                            style={{
+                                backgroundColor: props.state.routeNames[props.state.index] === item.screen
+                                    ? COLORS.primaryAppColorOpacity(0.3)
+                                    : 'transparent',
+                                marginHorizontal: scale(4),
+                                borderRadius: 8,
+                            }}
+                        />
+                    ))}
+                </View>
+                <View style={{ padding: scale(10), marginTop: 'auto' }}>
+                    <TouchableOpacity
+                        onPress={handleLogout}
                         style={{
-                            backgroundColor: props.state.routeNames[props.state.index] === item.screen
-                                ? COLORS.primaryAppColorOpacity(0.3)
-                                : 'transparent',
-                            marginHorizontal: scale(4),
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            backgroundColor: COLORS.secondaryAppColor,
+                            paddingVertical: scale(10),
+                            paddingHorizontal: scale(15),
                             borderRadius: 8,
                         }}
-                    />
-                ))}
-            </View>
-            <View style={{ padding: scale(10), marginTop: 'auto' }}>
-                <TouchableOpacity
-                    onPress={handleLogout}
-                    style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        backgroundColor: COLORS.secondaryAppColor,
-                        paddingVertical: scale(10),
-                        paddingHorizontal: scale(15),
-                        borderRadius: 8,
-                    }}
-                >
-                    <Icon name="log-out" type="Feather" size={18} color={COLORS.white} />
-                    <TextComp
-                        style={{
-                            fontSize: scale(14),
-                            color: COLORS.white,
-                            marginLeft: scale(10),
-                            fontFamily: GABRITO_MEDIUM,
-                        }}
                     >
-                        Logout
-                    </TextComp>
-                </TouchableOpacity>
-            </View>
-        </DrawerContentScrollView>
+                        <Icon name="log-out" type="Feather" size={18} color={COLORS.white} />
+                        <TextComp
+                            style={{
+                                fontSize: scale(14),
+                                color: COLORS.white,
+                                marginLeft: scale(10),
+                                fontFamily: GABRITO_MEDIUM,
+                            }}
+                        >
+                            Logout
+                        </TextComp>
+                    </TouchableOpacity>
+                </View>
+            </DrawerContentScrollView>
+        </SafeAreaView>
     );
 };
 

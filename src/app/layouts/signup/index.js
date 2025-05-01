@@ -84,7 +84,7 @@ const Signup = () => {
     // }
 
     // Success
-    console.log('Payload:', payload);
+    // console.log('Payload:', payload);  
     navigation.navigate(SCREEN.VERIFY_OTP, {
       email: payload.email,
       comingFrom: SCREEN.SIGNUP,
