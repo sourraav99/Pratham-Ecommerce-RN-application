@@ -5,7 +5,7 @@ import { BASE_URL } from './config';
 
 const axiosInstance = axios.create({
     baseURL: BASE_URL,
-    timeout: 60000,
+    timeout: 10000,
 });
 
 // Set default headers

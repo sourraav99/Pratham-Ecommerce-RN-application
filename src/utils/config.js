@@ -9,9 +9,9 @@ export const BASE_URL = 'https://pratham.markletech.com'
 
 export const END_POINTS = {
     LOGIN: `/api/login.php`,
-    SIGNUP: `/auth/signup`,
+    SIGNUP: `/api/signup.php`,
     // RESET_PASSWORD: `/auth/change-password`,
-    VERIFY_EMAIL: `/auth/verify-email`,
+    VERIFY_EMAIL: `/api/verify_otp.php`,
     // FORGET_PASSWORD:`/auth/forget-password`,
     // GET_ALL_VENUES:`/venue/active-venue/user`,
     // GET_ACTIVE_SPORTS: `/sport/active-sports`,

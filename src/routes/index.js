@@ -31,8 +31,8 @@ const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
   useEffect(() => {
     const checkLoginStatus = async () => {
       try {
-        const loginStatus = await AsyncStorage.getItem('login');
-        if (loginStatus === 'true') {
+        const loginStatus = await AsyncStorage.getItem('token');
+        if (loginStatus) {
           dispatch(loginUser());
         }
       } catch (err) {

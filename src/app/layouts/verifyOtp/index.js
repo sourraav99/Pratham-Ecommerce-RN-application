@@ -1,8 +1,8 @@
-import { View, Text, Image, TouchableOpacity, Keyboard } from 'react-native'
+import { View, Text, Image, TouchableOpacity, Keyboard, Alert } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Wrapper from '../../components/wrapper'
 import { height, width } from '../../hooks/responsive'
-import { useNavigation, useRoute, useTheme } from '@react-navigation/native'
+import { CommonActions, useNavigation, useRoute, useTheme } from '@react-navigation/native'
 import ButtonComp from '../../components/buttonComp'
 import { IMAGES } from '../../../res/images'
 import { moderateScale, scale, verticalScale } from 'react-native-size-matters'
@@ -17,6 +17,7 @@ import { isIOS } from '../../hooks/platform'
 import { useDispatch } from 'react-redux'
 import { loginUser } from '../../../redux/slices/authSlice'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { verifyEmailAction } from '../../../redux/action'
 
 const VerifyOtp = () => {
     const navigation = useNavigation()
@@ -27,6 +28,7 @@ const VerifyOtp = () => {
     const comingFrom = route?.params?.comingFrom || SCREEN.SIGNUP;
     const [timeLeft, setTimeLeft] = useState(59);
     const [showResendLine, setShowResendLine] = useState(false);
+    const [loading, setLoading] = useState(false)
 
 
     useEffect(() => {
@@ -42,7 +44,10 @@ const VerifyOtp = () => {
         return () => clearInterval(timer);
     }, [timeLeft]);
 
-
+const payload={
+    email,
+    otp
+}
 
     const formatTime = (sec) => {
         const m = Math.floor(sec / 60);
@@ -56,18 +61,29 @@ const VerifyOtp = () => {
     }
     const handleVerify = async() => {
         if (comingFrom === SCREEN.SIGNUP) {
-            // Maybe send to welcome screen or ask for profile info
+           
             if (otp.length !== 4) {
                 Toast.show('Please enter a 4-digit OTP');
                 return;
               }
-              try {
-                await AsyncStorage.setItem('login', 'true');
-                dispatch(loginUser()); // this will update redux
-              } catch (error) {
-                console.error('signup Error', error);
-                Toast.show('signup failed');
-              }
+              setLoading(true)
+              dispatch(verifyEmailAction(payload,(response)=>{
+                setLoading(false)
+                if (response?.data?.status) {
+                    navigation.dispatch(
+                        CommonActions.reset({
+                          index: 0,
+                          routes: [{ name:SCREEN.LOGIN }],
+                        })
+                      );
+                    Toast.show(`${response?.data?.message},Please Login` || 'Verification successfull! Please Login', Toast.SHORT);
+                    console.log(`userdata---------->>>>>`,response?.data?.data);
+                  } else {
+                    Toast.show(response?.data?.message || 'registration failed', Toast.SHORT);
+                    console.log(`rejecteddddd`, response.data);
+                    Alert.alert(response?.data?.message)
+                  }
+              }))
         } else if (comingFrom === SCREEN.FORGOT_PASSWORD) {
             navigation.navigate(SCREEN.CHANGE_PASSWORD);
         } else {
@@ -138,7 +154,7 @@ const VerifyOtp = () => {
                         </TextComp>
                     )}
                 </View>
-                {/* )} */}<ButtonComp onPress={handleVerify} title={'Verify Account'} buttonStyle={{ marginTop: verticalScale(40), position: 'absolute', bottom: verticalScale(50), width: width * 0.89 }} textStyle={{ color: COLORS.white }} />
+                {/* )} */}<ButtonComp loading={loading} onPress={handleVerify} title={'Verify Account'} buttonStyle={{ marginTop: verticalScale(40), position: 'absolute', bottom: verticalScale(50), width: width * 0.89 }} textStyle={{ color: COLORS.white }} />
             </KeyboardAwareScrollView>
         </Wrapper>
     )

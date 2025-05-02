@@ -1,4 +1,4 @@
-import { View, Text, Image, TouchableOpacity } from 'react-native'
+import { View, Text, Image, TouchableOpacity, Alert } from 'react-native'
 import React, { useState } from 'react'
 import Wrapper from '../../components/wrapper'
 import { height, width } from '../../hooks/responsive'
@@ -33,7 +33,7 @@ const Login = () => {
     const storeToken = async (jwtToken) => {
         try {
             await AsyncStorage.setItem('token', jwtToken);
-            console.log('Token stored successfully:', jwtToken);
+            // console.log('Token stored successfully:', jwtToken);
         } catch (error) {
             console.error('Error storing user data:', error);
         }
@@ -56,10 +56,16 @@ const Login = () => {
             loginAction(payload, (response) => {
                 setLoading(false)
                 if (response?.data?.status) {
+                    // console.log(`sucessful`);
+
                     storeToken(response?.data?.data?.auth_token)
-                console.log(`sucessss---------->>>>>`,response?.data?.data?.auth_token);
+                    AsyncStorage.setItem('userData', response?.data?.data);
+                    loginUser(); // this will update redux
+                    Toast.show(response?.data?.message || 'login successfull', Toast.SHORT);
+                    // console.log(`userdata---------->>>>>`,response?.data?.data);
                 } else {
-                    console.log(`rejecteddddd`,response.data);
+                    // console.log(`rejecteddddd`, response.data);
+                    Alert.alert(response?.data?.message)
                 }
             })
         )

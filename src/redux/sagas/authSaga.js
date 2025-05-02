@@ -1,5 +1,5 @@
 import { call, put, takeLatest } from "redux-saga/effects";
-import { LOGIN_ACTION, VERIFY_EMAIL_ACTION, SIGNUP_ACTION, } from "../action/types";
+import { LOGIN_ACTION, SIGNUP_ACTION, VERIFY_EMAIL_ACTION, } from "../action/types";
 import axios from "../../utils/axiosConfig";
 import { BASE_URL, END_POINTS } from "../../utils/config";
 
@@ -39,27 +39,31 @@ export function* loginSaga(action) {
     try {
         const response = yield call(login, action.payload);
         action.callBack(response);
-         console.log('response=======>>>>>>>+++++', response.data);
+        //  console.log('response=======>>>>>>>+++++', response.data);
     } catch (error) {
-        console.error('Login failed:', error);
+        // console.error('Login failed:', error);
         action.callBack(error);
     }
 }
 
 
 function* signup(payload) {
-    let formData = new FormData()
-    Object.keys(payload).forEach(element => {
-        formData.append(element, payload[element])
-    });
+    // let formData = new FormData()
+    // Object.keys(payload).forEach(element => {
+    //     formData.append(element, payload[element])
+    // });
     // console.log(`${END_POINTS.AUTH}/login`,"**********************8")
-    return yield axios.post(`${BASE_URL}${END_POINTS.SIGNUP}`, formData)
+    return yield axios.post(`${BASE_URL}${END_POINTS.SIGNUP}`,payload,{
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
 }
 export function* signupSaga(action) {
     try {
-        // console.log('action--->>>>', action);
+        console.log('action--->>>>', action);
         const response = yield call(signup, action.payload);
-        // console.log('response=======>>>>>>>+++++', response.data);
+        console.log('response=======>>>>>>>+++++', response.data);
         action.callBack(response)
     } catch (error) {
         console.error('signup failed:', error);
@@ -113,18 +117,22 @@ export function* signupSaga(action) {
 // }
 
 function* verifyEmail(payload) {
-    let formData = new FormData()
-    Object.keys(payload).forEach(element => {
-        formData.append(element, payload[element])
-    });
+    // let formData = new FormData()
+    // Object.keys(payload).forEach(element => {
+    //     formData.append(element, payload[element])
+    // });
     // console.log(`${END_POINTS.AUTH}/login`,"**********************8")
-    return yield axios.post(`${BASE_URL}${END_POINTS.VERIFY_EMAIL}`, formData)
+    return yield axios.post(`${BASE_URL}${END_POINTS.VERIFY_EMAIL}`, payload,{
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
 }
 export function* verifyEmailSaga(action) {
     try {
         // console.log('action--->>>>', action);
         const response = yield call(verifyEmail, action.payload);
-        // console.log('response=======>>>>>>>+++++', response.data);
+        console.log('response=======>>>>>>>+++++', response.data);
         action.callBack(response)
     } catch (error) {
         console.error('verify Email failed:', error);

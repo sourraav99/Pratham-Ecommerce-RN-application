@@ -37,7 +37,7 @@ const TextInputComp = ({
   <View style={[styles.container, customContainerStyle, { borderColor: customBorderColor || COLORS.borderColor }]}>
       <TextInput
       keyboardType={keyboardType}
-      // keyboardType='numeric'
+      // keyboardType='phone-pad'
       maxLength={maxLength}
         allowFontScaling={false}
         value={value}

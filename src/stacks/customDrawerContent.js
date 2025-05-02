@@ -34,7 +34,7 @@ const CustomDrawerContent = (props) => {
     const dispatch = useDispatch()
     const handleLogout = async () => {
         try {
-            await AsyncStorage.removeItem('login'); // clear storage
+            await AsyncStorage.clear(); // clear storage
             dispatch(logoutUser()); // update redux
             Toast.show('User Logged out', Toast.SHORT);
         } catch (error) {
