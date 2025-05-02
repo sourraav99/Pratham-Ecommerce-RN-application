@@ -56,11 +56,12 @@ const Login = () => {
             loginAction(payload, (response) => {
                 setLoading(false)
                 if (response?.data?.status) {
-                    // console.log(`sucessful`);
+                    console.log(`token----->>>`, response?.data?.data?.auth_token);
 
                     storeToken(response?.data?.data?.auth_token)
-                    AsyncStorage.setItem('userData', response?.data?.data);
-                    loginUser(); // this will update redux
+
+                    AsyncStorage.setItem('userData', JSON.stringify(response?.data?.data));
+                    dispatch(loginUser()); // this will update redux
                     Toast.show(response?.data?.message || 'login successfull', Toast.SHORT);
                     // console.log(`userdata---------->>>>>`,response?.data?.data);
                 } else {
@@ -69,14 +70,6 @@ const Login = () => {
                 }
             })
         )
-
-        // try {
-        //     await AsyncStorage.setItem('login', 'true');
-        //     dispatch(loginUser()); // this will update redux
-        // } catch (error) {
-        //     console.error('Login Error', error);
-        //     Toast.show('Login failed');
-        // }
     };
 
     const handleForgotPassword = () => {

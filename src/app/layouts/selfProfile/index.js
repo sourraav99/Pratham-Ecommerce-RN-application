@@ -1,4 +1,4 @@
-import { View, Text, Image, TouchableOpacity, Keyboard, BackHandler } from 'react-native'
+import { View, Text, Image, TouchableOpacity, Keyboard, BackHandler, ActivityIndicator } from 'react-native'
 import React, { useCallback, useEffect, useState } from 'react'
 import Wrapper from '../../components/wrapper'
 import { height, width } from '../../hooks/responsive'
@@ -14,6 +14,9 @@ import Icon from '../../../utils/icon'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { isIOS } from '../../hooks/platform'
 import Toast from 'react-native-simple-toast';
+import ImagePicker from 'react-native-image-crop-picker';
+import AsyncStorage from '@react-native-async-storage/async-storage'
+
 
 
 const SelfProfile = () => {
@@ -35,8 +38,39 @@ const SelfProfile = () => {
   const [postalCode, setPostalCode] = useState('110031');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [userData, setUserData] = useState(null);
+  const [profileImage, setProfileImage] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const json = await AsyncStorage.getItem('userData');
+        if (json) {
+          const parsed = JSON.parse(json);
+          setUserData(parsed);
+
+          // Prefill form fields
+          setFirstName(parsed.first_name || '');
+          setLastName(parsed.last_name || '');
+          setEmail(parsed.email || '');
+          setMobileNumber(parsed.mobile_number || '');
+          setBusinessName(parsed.business_name || '');
+          setBusinessType(parsed.business_type || '');
+          setGstNumber(parsed.gst_number || '');
+          setBusinessAddress(parsed.business_address || '');
+          setCity(parsed.city || '');
+          setState(parsed.state || '');
+          setPostalCode(parsed.postal_code || '');
+        }
+      } catch (e) {
+        console.log('Failed to load user data:', e);
+      } finally {
+        setLoading(false)
+      }
+    };
+
+    fetchUserData();
     const show = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true));
     const hide = Keyboard.addListener('keyboardDidHide', () => setKeyboardVisible(false));
     return () => {
@@ -48,21 +82,38 @@ const SelfProfile = () => {
 
   useFocusEffect(
     useCallback(() => {
-        const onBackPress = () => {
-            navigation.reset({
-                index: 0,
-                routes: [{ name: SCREEN.DRAWER_HOME }],
-            });
-            return true; // prevents default back behavior
-        };
+      const onBackPress = () => {
+        navigation.reset({
+          index: 0,
+          routes: [{ name: SCREEN.DRAWER_HOME }],
+        });
+        return true; // prevents default back behavior
+      };
 
-        const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+      const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
 
-        return () => subscription.remove();
+      return () => subscription.remove();
     }, [])
-);
+  );
 
 
+
+
+  const openGallery = async () => {
+    console.log('Opening gallery...');
+
+    try {
+      const image = await ImagePicker.openPicker({
+        width: 300,
+        height: 400,
+        cropping: true,
+      });
+      setProfileImage(image.path);
+      console.log('Selected image:', image);
+    } catch (err) {
+      console.log('Image picker error:', err);
+    }
+  };
   const handleBack = () => {
     navigation.dispatch(
       CommonActions.reset({
@@ -71,7 +122,7 @@ const SelfProfile = () => {
       })
     );
   };
-  const handleRegister = () => {
+  const handleSave = async () => {
     // Trim values
     const payload = {
       firstName: firstName.trim(),
@@ -89,30 +140,31 @@ const SelfProfile = () => {
       confirmPassword: confirmPassword.trim(),
     };
 
-    // // Validate fields
-    // for (const [key, value] of Object.entries(payload)) {
-    //   if (!value) {
-    //     const formattedKey = key
-    //       .replace(/([A-Z])/g, ' $1')
-    //       .replace(/^./, (str) => str.toUpperCase());
-    //     Toast.show(`${formattedKey} is required`);
-    //     return;
-    //   }
-    // }
+    try {
+      const allKeys = await AsyncStorage.getAllKeys();
+      const allData = await AsyncStorage.multiGet(allKeys);
 
-    // // Password match check
-    // if (payload.password !== payload.confirmPassword) {
-    //   Toast.show('Passwords do not match');
-    //   return;
-    // }
+      console.log('===== AsyncStorage Data =====');
+      allData.forEach(([key, value]) => {
+        console.log(`${key}: ${value}`);
+      });
+      console.log('=============================');
+    } catch (error) {
+      console.log('Error reading AsyncStorage:', error);
+    }
 
-    // Success
-    // console.log('Payload:', payload);  
-    navigation.navigate(SCREEN.VERIFY_OTP, {
-      email: payload.email,
-      comingFrom: SCREEN.SIGNUP,
-    });
   };
+
+  if (loading) {
+    return (
+      // <Wrapper >
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="large" color={COLORS.secondaryAppColor} />
+          <Text style={{ marginTop: 10 }}>Loading profile...</Text>
+        </View>
+      // </Wrapper>
+    );
+  }
 
 
   return (
@@ -132,7 +184,20 @@ const SelfProfile = () => {
       >
         {/* <Header/> */}
 
-        <Image source={{ uri: `https://i.pinimg.com/736x/e8/e6/41/e8e64141f4c0ae39c32f9701ccea9a2e.jpg` }} style={{ height: verticalScale(100), width: verticalScale(100), borderRadius: verticalScale(100) / 2, alignSelf: 'center', marginTop: height * 0.01, marginBottom: height * 0.03, borderWidth: 2 }} resizeMode='contain' />
+        <View style={{ width: verticalScale(100), alignSelf: 'center' }}>
+          <Image source={
+            profileImage
+              ? { uri: profileImage }
+              : userData?.image
+                ? { uri: userData.image }
+                : IMAGES.DEFAULT_PROFILE
+          } style={{ height: verticalScale(100), width: verticalScale(100), borderRadius: verticalScale(100) / 2, alignSelf: 'center', marginTop: height * 0.01, marginBottom: height * 0.03, borderWidth: 2 }} resizeMode='cover' />
+          <View style={{ position: 'absolute', right: 12, top: verticalScale(82) }}>
+            <TouchableOpacity onPress={openGallery} activeOpacity={0.7} style={{ backgroundColor: COLORS.white, borderRadius: 100 }}>
+              <Icon type='AntDesign' name={'plus'} color={COLORS.black} size={22} />
+            </TouchableOpacity>
+          </View>
+        </View>
         <View style={{ flexDirection: 'row', justifyContent: 'space-evenly' }}>
           <TextInputComp
             style={{ flex: 0.95 }}
@@ -157,7 +222,7 @@ const SelfProfile = () => {
         <TextInputComp value={password} onChangeText={setPassword} secureTextEntry={true} showPasswordToggle={true} placeholder={'Enter your password'} label={'Password'} style={{ marginTop: verticalScale(12) }} />
         <TextInputComp value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry={true} showPasswordToggle={true} placeholder={'Confirm Password'} label={'Confirm Password'} style={{ marginTop: verticalScale(12) }} />
 
-        <ButtonComp onPress={handleRegister} title={'Save'} buttonStyle={{ marginTop: verticalScale(40), backgroundColor: COLORS.secondaryAppColor }} textStyle={{ color: COLORS.white }} />
+        <ButtonComp onPress={handleSave} title={'Save'} buttonStyle={{ marginTop: verticalScale(40), backgroundColor: COLORS.secondaryAppColor }} textStyle={{ color: COLORS.white }} />
         {/* {keyboardVisible && ( */}
         <View style={{ height: verticalScale(50) }} />
 
