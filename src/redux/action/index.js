@@ -33,3 +33,8 @@ export const getCategoriesAction = ( callBack) => ({
 export const getProductsByCategoryAction = (payload, callBack) => ({
     type: TYPES['GET_PRODUCTS_BY_CATEGORY'], payload, callBack
 })
+
+export const getProductsAction = ( callBack) => ({
+    type: TYPES['GET_PRODUCTS'],callBack
+})
+

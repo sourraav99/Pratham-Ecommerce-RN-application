@@ -1,5 +1,5 @@
 import { call, put, takeLatest } from "redux-saga/effects";
-import { GET_BANNERS_ACTION, GET_CATEGORIES_ACTION, GET_PRODUCTS_BY_CATEGORY, LOGIN_ACTION, REQUEST_FORGET_PASSWORD_ACTION, RESET_PASSWORD_ACTION, SET_CATEGORIES, SIGNUP_ACTION, VERIFY_EMAIL_ACTION, VERIFY_FORGET_PASSWORD_OTP_ACTION, } from "../action/types";
+import { GET_BANNERS_ACTION, GET_CATEGORIES_ACTION, GET_PRODUCTS, GET_PRODUCTS_BY_CATEGORY, LOGIN_ACTION, REQUEST_FORGET_PASSWORD_ACTION, RESET_PASSWORD_ACTION, SET_CATEGORIES, SIGNUP_ACTION, VERIFY_EMAIL_ACTION, VERIFY_FORGET_PASSWORD_OTP_ACTION, } from "../action/types";
 import axios from "../../utils/axiosConfig";
 import { BASE_URL, END_POINTS } from "../../utils/config";
 
@@ -185,6 +185,23 @@ function* getProductsByCategorySaga(action) {
 }
 
 
+function* getProducts() {
+    // console.log(`paylod--->>>`, payload);
+
+    return yield call(axios.get, `${BASE_URL}${END_POINTS.GET_PRODUCTS}`);
+}
+function* getProductsSaga(action) {
+    try {
+        console.log('action--->>>>', action);
+        const response = yield call(getProducts, action.payload)
+        // console.log('response=======>>>>>>>+++++', response.data);
+        action.callBack(response)
+    } catch (error) {
+        console.log('getCategories API Error:', error?.message || error); // safer logging
+        action.callBack(error);
+    }
+}
+
 
 export function* authSaga() {
     yield takeLatest(LOGIN_ACTION, loginSaga);
@@ -196,6 +213,6 @@ export function* authSaga() {
     yield takeLatest(GET_BANNERS_ACTION, getBannersSaga);
     yield takeLatest(GET_CATEGORIES_ACTION, getCategoriesSaga);
     yield takeLatest(GET_PRODUCTS_BY_CATEGORY, getProductsByCategorySaga);
-
+    yield takeLatest(GET_PRODUCTS, getProductsSaga);
 }
 export default authSaga;

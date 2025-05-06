@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity, Image, FlatList, Alert, Button, } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import SystemNavigationBar from 'react-native-system-navigation-bar';
 import { COLORS } from '../../../res/colors';
 import Wrapper from '../../components/wrapper';
@@ -15,14 +15,14 @@ import { productsData } from '../../../utils/data';
 import { useNavigation } from '@react-navigation/native';
 import { SCREEN } from '..';
 import { useDispatch } from 'react-redux';
-import { getBannersAction, getCategoriesAction } from '../../../redux/action';
+import { getBannersAction, getCategoriesAction, getProductsAction } from '../../../redux/action';
 import Toast from "react-native-simple-toast";
 
 
 const Home = () => {
   const navigation = useNavigation()
   const dispatch = useDispatch()
-  const [products, setProducts] = useState(productsData || []);
+  const [products, setProducts] = useState();
   const [likedItems, setLikedItems] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showVariantModal, setShowVariantModal] = useState(false);
@@ -64,9 +64,18 @@ const Home = () => {
     }))
   }
 
+  const fetchProducts = () => {
+    dispatch(getProductsAction((response) => {
+      console.log(`productsResponse${JSON.stringify(response?.data)}`);
+      setProducts(response?.data?.data || [])
+    }))
+
+  }
+
   useEffect(() => {
     fetchCategories()
     fetchBanner()
+    fetchProducts()
   }, [])
 
 
@@ -126,7 +135,8 @@ const Home = () => {
           alignItems: 'center',
         }}
       >
-        <TextComp>{`${item.value}${item.unit} - ₹${item.price}`}</TextComp>
+        {/* <TextComp>{`${item.value}${item.unit} - ₹${item.price}`}</TextComp> */}
+        <TextComp>{`9mm - ₹100`}</TextComp>
 
         <View
           style={{
@@ -162,7 +172,7 @@ const Home = () => {
     )
   }
 
-  const renderProductItem = ({ item }) => {
+  const renderProductItem = useCallback(({ item }) => {
     const isLiked = likedItems.includes(item._id);
     return (
 
@@ -176,7 +186,7 @@ const Home = () => {
           }}
         >
           <Image
-            source={{ uri: item.image }}
+            source={{ uri: item.display_image }}
             style={{
               width: width * 0.92 * 0.4,
               height: verticalScale(120),
@@ -193,13 +203,16 @@ const Home = () => {
           >
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', }}>
               <View style={{ flex: 1, paddingLeft: moderateScale(5) }}>
-                <TextComp style={{ fontSize: scale(12), marginTop: scale(3), color: COLORS.secondaryAppColor }}>
+                {/* <TextComp style={{ fontSize: scale(12), marginTop: scale(3), color: COLORS.secondaryAppColor }}>
                   {item.brand}
+                </TextComp> */}
+                <TextComp style={{ fontSize: scale(12), marginTop: scale(3), color: COLORS.secondaryAppColor }}>
+                  Pioneer
                 </TextComp>
                 <TextComp numberOfLines={2} style={{ fontSize: scale(13), fontWeight: `900`, color: COLORS.secondaryAppColor }}>
-                  {item.description}
+                  {item.product_name}
                 </TextComp>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: verticalScale(6) }}>
                   <TextComp style={{ fontSize: scale(20), fontWeight: `900`, color: COLORS.secondaryAppColor }}>{`₹${item.price}`}
                     <TextComp style={{ fontSize: scale(8), color: COLORS.secondaryAppColor }}> Incl GST</TextComp>
                   </TextComp>
@@ -209,14 +222,18 @@ const Home = () => {
                   </TouchableOpacity>
                 </View>
                 <View style={{ flexDirection: 'row' }}>
-                  <TextComp style={{ fontSize: scale(12), color: COLORS.secondaryAppColor }}>{`Size:${item.mainSize.value}${item.mainSize.unit}`}
+                  {/* <TextComp style={{ fontSize: scale(12), color: COLORS.secondaryAppColor }}>{`Size:${item.mainSize.value}${item.mainSize.unit}`}
+                  </TextComp> */}
+                  <TextComp style={{ fontSize: scale(12), color: COLORS.secondaryAppColor }}>{`Size:9mm`}
                   </TextComp>
                   <TextComp onPress={() => {
                     setSelectedProduct(item);
                     setShowVariantModal(true);
                   }} style={{ marginLeft: scale(6), fontSize: scale(12), color: COLORS.blue, fontWeight: '800' }}>{`More`}</TextComp>
                 </View>
-                <TextComp style={{ fontSize: scale(12), color: COLORS.secondaryAppColor }}>{`Unit:${item.mainSize.unit}`}
+                {/* <TextComp style={{ fontSize: scale(12), color: COLORS.secondaryAppColor }}>{`Unit:${item.mainSize.unit}`}
+                </TextComp> */}
+                <TextComp style={{ fontSize: scale(12), color: COLORS.secondaryAppColor }}>{`Unit:L`}
                 </TextComp>
               </View>
               <TouchableOpacity onPress={() => toggleLike(item)} style={{ marginRight: moderateScale(10), marginTop: verticalScale(10) }}>
@@ -228,7 +245,52 @@ const Home = () => {
       </View>
     );
 
-  }
+  })
+  const handleCategoryPress = useCallback((cat) => {
+    navigation.navigate(SCREEN.CATEGORY_PRODUCT_SCREEN, { data: cat });
+  }, [navigation]);
+  const CategoryItem = React.memo(({ cat, onPress }) => {
+    return (
+      <TouchableOpacity
+        activeOpacity={0.9}
+        onPress={() => onPress(cat)}
+        style={{
+          width: (width - scale(13) * 2) / 4 - scale(4),
+          alignItems: 'center',
+          marginVertical: verticalScale(5),
+        }}
+      >
+        <Image
+          source={{ uri: cat.image }}
+          style={{
+            height: scale(72),
+            width: scale(70),
+            borderRadius: scale(8),
+            borderWidth: 1,
+            borderColor: COLORS.secondaryAppColor || '#ccc',
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: scale(4),
+            elevation: 7,
+            overflow: 'hidden'
+          }}
+          resizeMode="cover"
+        />
+        <TextComp
+          numberOfLines={1}
+          style={{
+            fontSize: scale(11),
+            marginTop: scale(5),
+            textAlign: 'center',
+          }}
+        >
+          {cat.name}
+        </TextComp>
+      </TouchableOpacity>
+    );
+  });
+
   const renderHeader = () => (
     <View style={{}}>
       {/* 🔹 Carousel */}
@@ -257,63 +319,30 @@ const Home = () => {
         {categories.length > 0 && (
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
             {categories.map((cat) => (
-              <TouchableOpacity
-                activeOpacity={0.9}
-                key={cat.id}
-                onPress={() => { navigation.navigate(SCREEN.CATEGORY_PRODUCT_SCREEN, { data: cat }) }}
-                style={{
-                  width: (width - scale(13) * 2) / 4 - scale(4), // Adjusted width with scale(13) padding
-                  alignItems: 'center',
-                  marginVertical: verticalScale(5),
-
-                }}
-              >
-                <Image
-                  source={{ uri: cat.image }}
-                  style={{
-                    height: scale(72),
-                    width: scale(70),
-                    borderRadius: scale(8),
-                    borderWidth: 1,
-                    borderColor: COLORS.secondaryAppColor || '#ccc',
-                    shadowColor: '#000',
-                    shadowOffset: { width: 0, height: 2 },
-                    shadowOpacity: 0.1,
-                    shadowRadius: scale(4),
-                    elevation: 7, // for Android
-                    overflow: 'hidden'
-                  }}
-                  resizeMode="cover"
-                />
-                <TextComp
-                  numberOfLines={1}
-                  style={{
-                    fontSize: scale(11),
-                    marginTop: scale(5),
-                    textAlign: 'center',
-                  }}
-                >
-                  {cat.name}
-                </TextComp>
-              </TouchableOpacity>
+              <CategoryItem key={cat.id} cat={cat} onPress={handleCategoryPress} />
             ))}
           </View>
         )}
+
       </View>
-      {/* <Button title='fetch categories' onPress={fetchCategories} /> */}
+      {/* <Button title='fetch pRODUCTS' onPress={fetchProducts} /> */}
 
       {/* 🔹 Divider + Products Section */}
-      <TextComp
-        style={{
-          fontSize: scale(12),
-          fontFamily: GABRITO_MEDIUM,
-          marginLeft: scale(13),
-          marginTop: verticalScale(10),
-          marginBottom: verticalScale(10),
-        }}
-      >
-        Explore our best products
-      </TextComp>
+      {
+        products.length > 0 && (
+          <TextComp
+            style={{
+              fontSize: scale(12),
+              fontFamily: GABRITO_MEDIUM,
+              marginLeft: scale(13),
+              marginTop: verticalScale(10),
+              marginBottom: verticalScale(10),
+            }}
+          >
+            Explore our best products
+          </TextComp>
+        )
+      }
     </View>
   );
 
@@ -325,12 +354,15 @@ const Home = () => {
         ListHeaderComponent={renderHeader}
         showsVerticalScrollIndicator={false}
         numColumns={1}
-
+        keyExtractor={(item) => item.id.toString()}
         data={products}
+        initialNumToRender={5}
+        maxToRenderPerBatch={10}
+        updateCellsBatchingPeriod={50}
+        removeClippedSubviews={true}
         key={(item) => { item.id }}
-        // keyExtractor={(item) => item.id}
         renderItem={renderProductItem}
-        
+
         contentContainerStyle={{ paddingBottom: verticalScale(100) }}
       />
 

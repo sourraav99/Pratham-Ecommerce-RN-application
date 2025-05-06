@@ -19,7 +19,7 @@ export const productsData = [
       image: 'https://picsum.photos/200/200',
       brand: 'PowerTech',
       description: 'Cordless drill with two-speed settings',
-      price: 1499,
+      price: 14994,
       mainSize: { value: 12, unit: 'V' },
       variants: [
         // { value: 10.8, unit: 'V', price: 1299 },

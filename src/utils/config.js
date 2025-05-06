@@ -17,7 +17,7 @@ export const END_POINTS = {
     GET_BANNERS:`/api/get_banners.php`,
     GET_CATEGORIES:`/api/get_categories.php`,
     GET_PRODUCTS_BY_CATEGORY_API:`/api/get_products_by_category.php`,
-    GET_PRODUCTS:`/api/get_products`
+    GET_PRODUCTS:`/api/get_products`,
     // FORGET_PASSWORD:`/auth/forget-password`,
     // GET_ALL_VENUES:`/venue/active-venue/user`,
     // GET_ACTIVE_SPORTS: `/sport/active-sports`,
