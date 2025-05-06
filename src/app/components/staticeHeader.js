@@ -1,5 +1,5 @@
 import { View, TouchableOpacity, Image } from 'react-native'
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { moderateScale, scale, verticalScale } from 'react-native-size-matters';
 import { IMAGES } from '../../res/images';
 import { COLORS } from '../../res/colors';
@@ -8,11 +8,41 @@ import TextComp from './textComp';
 import { width } from '../hooks/responsive';
 import { useNavigation } from '@react-navigation/native';
 import { SCREEN } from '../layouts';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { PROFILE_IMAGE_BASE_URL } from '../../utils/config';
 
-const StaticeHeader = ({ headerLabel,showFilterIcon=true }) => {
+const StaticeHeader = ({ headerLabel, showFilterIcon = true }) => {
     const navigation = useNavigation()
-const imageUri='https://i.pinimg.com/736x/e8/e6/41/e8e64141f4c0ae39c32f9701ccea9a2e.jpg'
+    const [profileImage, setProfileImage] = useState(null);
+    const imageUri = 'https://i.pinimg.com/736x/e8/e6/41/e8e64141f4c0ae39c32f9701ccea9a2e.jpg'
 
+
+    useEffect(() => {
+        const getProfileImage = async () => {
+            try {
+                const userData = await AsyncStorage.getItem('userData');
+                if (userData) {
+                    const parsed = JSON.parse(userData);
+                    const imageId = parsed?.image;
+
+                    if (typeof imageId === 'string' && imageId.length > 0) {
+                        setProfileImage(`${PROFILE_IMAGE_BASE_URL}${encodeURIComponent(imageId)}`);
+                    } else {
+                        setProfileImage(null);
+                    }
+                } else {
+                    setProfileImage(null);
+                }
+            } catch (error) {
+                console.log('Error fetching image from AsyncStorage', error);
+                setProfileImage(null);
+            }
+        };
+
+        getProfileImage();
+    }, []);
+
+    // console.log('profileImage typeof --->', typeof profileImage, profileImage);
     return (
         <>
             <View style={{ width: width, height: verticalScale(55), alignSelf: 'center', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 10, borderBottomWidth: !headerLabel ? 1 : 0, borderColor: COLORS.greyOpacity(0.5) }}>
@@ -24,11 +54,14 @@ const imageUri='https://i.pinimg.com/736x/e8/e6/41/e8e64141f4c0ae39c32f9701ccea9
                     </>
                 ) : (
                     <TouchableOpacity onPress={() => { navigation.openDrawer() }} style={{ borderWidth: 1, height: verticalScale(43), width: verticalScale(43), borderRadius: 100, alignItems: 'center', justifyContent: 'center' }}>
-                        <Image resizeMode='contain' source={
-                            imageUri
-                                ? { uri: imageUri }
-                                : IMAGES.USER_PNG
-                        } style={{ height: verticalScale(40), width: verticalScale(40), borderRadius: 100 }} />
+                        <Image resizeMode='cover'
+                            source={
+                                profileImage
+                                    ? { uri: profileImage }
+                                    : IMAGES.DEFAULT_PROFILE
+                            }
+                            // source={IMAGES.DEFAULT_PROFILE}
+                            style={{ height: verticalScale(40), width: verticalScale(40), borderRadius: 100 }} />
                     </TouchableOpacity>
                 )}
                 <TouchableOpacity  >

@@ -7,4 +7,5 @@ BLACK_LOGO_WITH_TEXT:require('../images/prathamLogoWithText-black.png'),
 CASH:require('../images/cash.png'),
 CREDIT:require('../images/Vector.png'),
 DEFAULT_PROFILE:require('../images/profile.png'),
+NO_PRODUCT:require('../images/noProduct.png'),
 }

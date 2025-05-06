@@ -1,30 +1,52 @@
-import { View, Text, Image, TouchableOpacity, Keyboard } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import { View, TouchableOpacity, Keyboard, Alert } from 'react-native'
+import React, { useState } from 'react'
 import Wrapper from '../../components/wrapper'
 import { height, width } from '../../hooks/responsive'
 import { useNavigation, useTheme } from '@react-navigation/native'
 import ButtonComp from '../../components/buttonComp'
-import { IMAGES } from '../../../res/images'
 import { moderateScale, scale, verticalScale } from 'react-native-size-matters'
 import { COLORS } from '../../../res/colors'
-import { SCREEN } from '..'
 import TextInputComp from '../../components/textInputComp'
 import TextComp from '../../components/textComp'
 import Icon from '../../../utils/icon'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { isIOS } from '../../hooks/platform'
+import { useDispatch } from 'react-redux'
+import { requestForgetPasswordAction } from '../../../redux/action'
+import Toast from 'react-native-simple-toast';
+import { SCREEN } from '..'
 
 const ForgotPassword = () => {
+    const dispatch = useDispatch()
     const navigation = useNavigation()
-
+    const [email, setEmail] = useState('')
+    const [loading, setLoading] = useState(false)
 
     const handleBack = () => {
         navigation.goBack()
     }
 
-     const handleVerify = () => {
-            navigation.navigate(SCREEN.VERIFY_OTP)
-        };
+    const handleVerify = () => {
+        const payload = { email }
+        if (!email) {
+            Toast.show('Please enter your email.');
+            return;
+        }
+        setLoading(true)
+        dispatch(requestForgetPasswordAction(payload, (response) => {
+            if (response?.data?.status) {
+                navigation.navigate(SCREEN.VERIFY_OTP, {
+                    email: email,
+                    comingFrom: SCREEN.FORGOT_PASSWORD,
+                });
+                setLoading(false)
+                Toast.show(response?.data?.message || 'OTP sent successfully', Toast.SHORT);
+            } else {
+                Alert.alert(response?.data?.message)
+            }
+        }))
+        // navigation.navigate(SCREEN.VERIFY_OTP)
+    };
     return (
         <Wrapper useBottomInset={true} useTopInsets={true} safeAreaContainerStyle={{}} childrenStyles={{ height: isIOS() ? height * 0.9 : height }}>
             <View style={{ height: verticalScale(50), width: width, alignSelf: 'center', justifyContent: 'center', paddingLeft: moderateScale(15) }}>
@@ -47,11 +69,14 @@ const ForgotPassword = () => {
                     </TextComp>
                 </View>
                 <TextInputComp
+                    value={email}
+                    onChangeText={setEmail}
                     style={{ marginTop: verticalScale(25) }}
                     placeholder={'Enter your email'}
                     label={'Email'} />
                 <ButtonComp
-                     onPress={handleVerify} 
+                    loading={loading}
+                    onPress={handleVerify}
                     title={'Send Reset Instruction'} buttonStyle={{ marginTop: verticalScale(40), position: 'absolute', bottom: verticalScale(50), width: width * 0.89 }} textStyle={{ color: COLORS.white }} />
             </KeyboardAwareScrollView>
         </Wrapper>

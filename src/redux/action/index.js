@@ -11,3 +11,25 @@ export const signupAction = (payload, callBack) => ({
 export const verifyEmailAction = (payload, callBack) => ({
     type: TYPES['VERIFY_EMAIL_ACTION'], payload, callBack
 })
+
+export const requestForgetPasswordAction = (payload, callBack) => ({
+    type: TYPES['REQUEST_FORGET_PASSWORD_ACTION'], payload, callBack
+})
+export const verifyForgetPasswordOtpAction = (payload, callBack) => ({
+    type: TYPES['VERIFY_FORGET_PASSWORD_OTP_ACTION'], payload, callBack
+})
+export const resetPasswordAction = (payload, callBack) => ({
+    type: TYPES['RESET_PASSWORD_ACTION'], payload, callBack
+})
+
+export const getBannersAction = ( callBack) => ({
+    type: TYPES['GET_BANNERS_ACTION'], callBack
+})
+
+export const getCategoriesAction = ( callBack) => ({
+    type: TYPES['GET_CATEGORIES_ACTION'], callBack
+})
+
+export const getProductsByCategoryAction = (payload, callBack) => ({
+    type: TYPES['GET_PRODUCTS_BY_CATEGORY'], payload, callBack
+})

@@ -1,31 +1,9 @@
 import { call, put, takeLatest } from "redux-saga/effects";
-import { LOGIN_ACTION, SIGNUP_ACTION, VERIFY_EMAIL_ACTION, } from "../action/types";
+import { GET_BANNERS_ACTION, GET_CATEGORIES_ACTION, GET_PRODUCTS_BY_CATEGORY, LOGIN_ACTION, REQUEST_FORGET_PASSWORD_ACTION, RESET_PASSWORD_ACTION, SET_CATEGORIES, SIGNUP_ACTION, VERIFY_EMAIL_ACTION, VERIFY_FORGET_PASSWORD_OTP_ACTION, } from "../action/types";
 import axios from "../../utils/axiosConfig";
 import { BASE_URL, END_POINTS } from "../../utils/config";
 
 
-
-// function* login(payload) {
-//     let formData = new FormData()
-//     Object.keys(payload).forEach(element => {
-//         formData.append(element, payload[element])
-//     });
-//     // console.log(`${END_POINTS.AUTH}/login`,"**********************8")
-//     return yield axios.post(`${BASE_URL}${END_POINTS.LOGIN}`, formData)
-// }
-
-
-// export function* loginSaga(action) {
-//     try {
-//         // console.log('action--->>>>', action);
-//         const response = yield call(login, action.payload);
-//         // console.log('response=======>>>>>>>+++++', response.data);
-//         action.callBack(response)
-//     } catch (error) {
-//         console.error('Login failed:', error);
-//         action.callBack(error)
-//     }
-// }
 
 function* login(payload) {
     return yield axios.post(`${BASE_URL}${END_POINTS.LOGIN}`, payload, {
@@ -48,12 +26,8 @@ export function* loginSaga(action) {
 
 
 function* signup(payload) {
-    // let formData = new FormData()
-    // Object.keys(payload).forEach(element => {
-    //     formData.append(element, payload[element])
-    // });
     // console.log(`${END_POINTS.AUTH}/login`,"**********************8")
-    return yield axios.post(`${BASE_URL}${END_POINTS.SIGNUP}`,payload,{
+    return yield axios.post(`${BASE_URL}${END_POINTS.SIGNUP}`, payload, {
         headers: {
             'Content-Type': 'application/json',
         },
@@ -71,58 +45,30 @@ export function* signupSaga(action) {
     }
 }
 
-// function* forgetPassword(payload) {
-//     let formData = new FormData()
-//     Object.keys(payload).forEach(element => {
-//         formData.append(element, payload[element])
-//     });
-//     console.log(`${BASE_URL}${END_POINTS.FORGET_PASSWORD}`);
-//     return yield axios.post(`${BASE_URL}${END_POINTS.FORGET_PASSWORD}`, formData)
-    
-    
-// }
-// export function* forgetPasswordSaga(action) {
-//     try {
-//         // console.log('action--->>>>', action);
-//         const response = yield call(forgetPassword, action.payload);
-//         // console.log('response=======>>>>>>>+++++', response.data);
-//         action.callBack(response)
-//     } catch (error) {
-//         console.error('signup failed:', error);
-//         action.callBack(error)
-//     }
-// }
+
+function* resetPassword(payload) {
+    return yield axios.post(`${BASE_URL}${END_POINTS.RESET_PASSWORD}`, payload, {
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
 
 
-// function* resetPassword(payload) {
-//     let formData = new FormData()
-//     Object.keys(payload).forEach(element => {
-//         formData.append(element, payload[element])
-//     });
-//     console.log(`${BASE_URL}${END_POINTS.RESET_PASSWORD}`);
-//     return yield axios.post(`${BASE_URL}${END_POINTS.RESET_PASSWORD}`, formData)
-    
-    
-// }
-// export function* resetPasswordSaga(action) {
-//     try {
-//         // console.log('action--->>>>', action);
-//         const response = yield call(resetPassword, action.payload);
-//         // console.log('response=======>>>>>>>+++++', response.data);
-//         action.callBack(response)
-//     } catch (error) {
-//         console.error('signup failed:', error);
-//         action.callBack(error)
-//     }
-// }
+}
+export function* resetPasswordSaga(action) {
+    try {
+        // console.log('action--->>>>', action);
+        const response = yield call(resetPassword, action.payload);
+        console.log('response=======>>>>>>>+++++', response.data);
+        action.callBack(response)
+    } catch (error) {
+        console.error('password change failed:', error);
+        action.callBack(error)
+    }
+}
 
 function* verifyEmail(payload) {
-    // let formData = new FormData()
-    // Object.keys(payload).forEach(element => {
-    //     formData.append(element, payload[element])
-    // });
-    // console.log(`${END_POINTS.AUTH}/login`,"**********************8")
-    return yield axios.post(`${BASE_URL}${END_POINTS.VERIFY_EMAIL}`, payload,{
+    return yield axios.post(`${BASE_URL}${END_POINTS.VERIFY_EMAIL}`, payload, {
         headers: {
             'Content-Type': 'application/json',
         },
@@ -141,24 +87,115 @@ export function* verifyEmailSaga(action) {
 }
 
 
+function* forgotPasswordRequest(payload) {
+    return yield axios.post(`${BASE_URL}${END_POINTS.REQUEST_FORGET_PASSWORD}`, payload, {
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
+}
+export function* forgotPasswordRequestSaga(action) {
+    try {
+        // console.log('action--->>>>', action);
+        const response = yield call(forgotPasswordRequest, action.payload);
+        console.log('response=======>>>>>>>+++++', response.data);
+        action.callBack(response)
+    } catch (error) {
+        console.error('forget password request api failed:', error);
+        action.callBack(error)
+    }
+}
+
+function* verifyForgotPasswordOtp(payload) {
+    return yield axios.post(`${BASE_URL}${END_POINTS.VERIFY_FORGET_PASSWORD_OTP}`, payload, {
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
+}
+export function* verifyForgotPasswordOtpSaga(action) {
+    try {
+        // console.log('action--->>>>', action);
+        const response = yield call(verifyForgotPasswordOtp, action.payload);
+        console.log('response=======>>>>>>>+++++', response.data);
+        action.callBack(response)
+    } catch (error) {
+        console.error('forget password OTP verification api failed:', error);
+        action.callBack(error)
+    }
+}
+
+function* getBanners() {
+    return yield call(axios.get, `${BASE_URL}${END_POINTS.GET_BANNERS}`);
+}
+function* getBannersSaga(action) {
+    try {
+        console.log('action--->>>>', action);
+        const response = yield call(getBanners)
+        // console.log('response=======>>>>>>>+++++', response.data);
+        action.callBack(response)
+    } catch (error) {
+        action.callBack(error)
+    }
+}
+
+function* getCategories() {
+    return yield call(axios.get, `${BASE_URL}${END_POINTS.GET_CATEGORIES}`);
+}
+function* getCategoriesSaga(action) {
+    try {
+        console.log('action--->>>>', action);
+        const response = yield call(getCategories)
+        // console.log('response=======>>>>>>>+++++', response.data);
+        if (response?.data?.status) {
+            // 🔽 Save categories globally
+            yield put({ type: SET_CATEGORIES, payload: response?.data?.data });
+        }
+        action.callBack(response)
+    } catch (error) {
+        console.log('Categories API Error:', error?.message || error); // safer logging
+        action.callBack({
+            data: {
+                status: false,
+                message: error?.response?.data?.message || 'Something went wrong!',
+            }
+        });
+    }
+}
+
+function* getProductsByCategory(payload) {
+    // console.log(`paylod--->>>`, payload);
+
+    return yield call(axios.post, `${BASE_URL}${END_POINTS.GET_PRODUCTS_BY_CATEGORY_API}`, payload, {
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+}
+function* getProductsByCategorySaga(action) {
+    try {
+        console.log('action--->>>>', action);
+        const response = yield call(getProductsByCategory, action.payload)
+        // console.log('response=======>>>>>>>+++++', response.data);
+        action.callBack(response)
+    } catch (error) {
+        console.log('getCategories API Error:', error?.message || error); // safer logging
+        action.callBack(error);
+    }
+}
+
+
+
 export function* authSaga() {
     yield takeLatest(LOGIN_ACTION, loginSaga);
     yield takeLatest(SIGNUP_ACTION, signupSaga);
     yield takeLatest(VERIFY_EMAIL_ACTION, verifyEmailSaga);
-        // yield takeLatest(GET_SELF_PROFILE_ACTION, getSelfProfileSaga);
-    //     yield takeLatest(GET_ACTIVE_SPORT_ACTION, getActiveSportSaga);
-    //     yield takeLatest(EDIT_PROFILE_ACTION, editProfileSaga);
-    //     yield takeLatest(GET_SELF_PROFILE_ACTION, getSelfProfileSaga);
-    //     yield takeLatest(STEP_1_ACTION, step1Saga);
-    //     yield takeLatest(STEP_2_ACTION, step2Saga);
-    //     yield takeLatest(STEP_3_ACTION, step3Saga);
-    //     yield takeLatest(STEP_4_ACTION, step4Saga);
-    // // yield takeLatest(GET_ALL_USERS_ACTION, getAllUsersSaga);
+    yield takeLatest(REQUEST_FORGET_PASSWORD_ACTION, forgotPasswordRequestSaga);
+    yield takeLatest(VERIFY_FORGET_PASSWORD_OTP_ACTION, verifyForgotPasswordOtpSaga);
+    yield takeLatest(RESET_PASSWORD_ACTION, resetPasswordSaga);
+    yield takeLatest(GET_BANNERS_ACTION, getBannersSaga);
+    yield takeLatest(GET_CATEGORIES_ACTION, getCategoriesSaga);
+    yield takeLatest(GET_PRODUCTS_BY_CATEGORY, getProductsByCategorySaga);
 
-
-    // yield takeLatest(FETCH_KEYWORD_ACTION, fetchKeywordsSaga);
-    // yield takeLatest(GET_USERS_BY_EXPERTISE_AREA, fetchUsersByExpertisSaga);
-    // yield takeLatest(FORGET_PASSWORD_ACTION, forgetPasswordSaga);
-    // yield takeLatest(RESET_PASSWORD_ACTION, resetPasswordSaga);
 }
 export default authSaga;

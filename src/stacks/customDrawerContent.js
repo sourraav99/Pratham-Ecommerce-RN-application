@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Image, TouchableOpacity, ScrollView, SafeAreaView } from 'react-native';
 import { DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer';
 import { useNavigation, CommonActions } from '@react-navigation/native';
@@ -12,6 +12,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { logoutUser } from '../redux/slices/authSlice';
 import Toast from "react-native-simple-toast";
 import { useDispatch } from 'react-redux';
+import { IMAGES } from '../res/images';
+import { PROFILE_IMAGE_BASE_URL } from '../utils/config';
 
 const drawerItems = [
     { label: 'Home', screen: SCREEN.DRAWER_HOME, icon: 'home', iconType: 'Feather' },
@@ -32,6 +34,31 @@ const drawerItems = [
 const CustomDrawerContent = (props) => {
     const navigation = useNavigation();
     const dispatch = useDispatch()
+    const [userData, setUserData] = useState({
+        image: null,
+        businessName: '',
+        phone: '',
+        customerId: '',
+    });
+    useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                const storedData = await AsyncStorage.getItem('userData');
+                if (storedData) {
+                    const parsed = JSON.parse(storedData);
+                    setUserData({
+                        image: parsed?.image || null,
+                        businessName: parsed?.business_name || 'Business Name',
+                        phone: parsed?.phone || '+91 9876543210',
+                        customerId: parsed?.customerId || '123456',
+                    });
+                }
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+            }
+        };
+        fetchUserData();
+    }, []);
     const handleLogout = async () => {
         try {
             await AsyncStorage.clear(); // clear storage
@@ -53,13 +80,18 @@ const CustomDrawerContent = (props) => {
                     style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly', paddingVertical: scale(5) }}>
                     {/* <View style={{  flexDirection: 'row',alignItems:'center'}}> */}
                     <Image
-                        source={{ uri: 'https://i.pinimg.com/736x/e8/e6/41/e8e64141f4c0ae39c32f9701ccea9a2e.jpg' }}
+                        source={
+                            userData.image
+                                ? { uri: `${PROFILE_IMAGE_BASE_URL}${userData.image}` }
+                                : IMAGES.DEFAULT_PROFILE // <- replace with your local fallback
+                        }
+                        // source={{ uri: 'https://i.pinimg.com/736x/e8/e6/41/e8e64141f4c0ae39c32f9701ccea9a2e.jpg' }}
                         style={{ width: 60, height: 60, borderRadius: 30, }}
                     />
                     <View style={{ paddingRight: moderateScale(30) }}>
-                        <TextComp style={{ fontSize: scale(14), fontFamily: GABRITO_MEDIUM }}>Business Name</TextComp>
-                        <TextComp style={{ fontSize: scale(12), color: COLORS.gray }}>Customer ID: 123456</TextComp>
-                        <TextComp style={{ fontSize: scale(12), color: COLORS.gray }}>+91 9876543210</TextComp>
+                        <TextComp style={{ fontSize: scale(14), fontFamily: GABRITO_MEDIUM }}>{userData.businessName}</TextComp>
+                        <TextComp style={{ fontSize: scale(12), color: COLORS.gray }}>Customer ID:{userData.customerId}</TextComp>
+                        <TextComp style={{ fontSize: scale(12), color: COLORS.gray }}>{userData.phone}</TextComp>
                     </View>
                     {/* </View> */}
                     <View style={{}} >

@@ -17,7 +17,7 @@ import { isIOS } from '../../hooks/platform'
 import { useDispatch } from 'react-redux'
 import { loginUser } from '../../../redux/slices/authSlice'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { verifyEmailAction } from '../../../redux/action'
+import { verifyEmailAction, verifyForgetPasswordOtpAction } from '../../../redux/action'
 
 const VerifyOtp = () => {
     const navigation = useNavigation()
@@ -44,10 +44,10 @@ const VerifyOtp = () => {
         return () => clearInterval(timer);
     }, [timeLeft]);
 
-const payload={
-    email,
-    otp
-}
+    const payload = {
+        email,
+        otp
+    }
 
     const formatTime = (sec) => {
         const m = Math.floor(sec / 60);
@@ -59,33 +59,48 @@ const payload={
     const handleBack = () => {
         navigation.goBack()
     }
-    const handleVerify = async() => {
+    const handleVerify = async () => {
         if (comingFrom === SCREEN.SIGNUP) {
-           
+
             if (otp.length !== 4) {
                 Toast.show('Please enter a 4-digit OTP');
                 return;
-              }
-              setLoading(true)
-              dispatch(verifyEmailAction(payload,(response)=>{
+            }
+            setLoading(true)
+            dispatch(verifyEmailAction(payload, (response) => {
                 setLoading(false)
                 if (response?.data?.status) {
                     navigation.dispatch(
                         CommonActions.reset({
-                          index: 0,
-                          routes: [{ name:SCREEN.LOGIN }],
+                            index: 0,
+                            routes: [{ name: SCREEN.LOGIN }],
                         })
-                      );
+                    );
                     Toast.show(`${response?.data?.message},Please Login` || 'Verification successfull! Please Login', Toast.SHORT);
-                    console.log(`userdata---------->>>>>`,response?.data?.data);
-                  } else {
+                    console.log(`userdata---------->>>>>`, response?.data?.data);
+                } else {
+                    setLoading(false)
                     Toast.show(response?.data?.message || 'registration failed', Toast.SHORT);
                     console.log(`rejecteddddd`, response.data);
                     Alert.alert(response?.data?.message)
-                  }
-              }))
+                }
+            }))
         } else if (comingFrom === SCREEN.FORGOT_PASSWORD) {
-            navigation.navigate(SCREEN.CHANGE_PASSWORD);
+            // navigation.navigate(SCREEN.CHANGE_PASSWORD);
+            dispatch(verifyForgetPasswordOtpAction(payload, (response) => {
+                setLoading(true)
+                if (response?.data?.status) {
+                    setLoading(false)
+                    navigation.navigate(SCREEN.CHANGE_PASSWORD, { email: email });
+                    Toast.show(`${response?.data?.message},Please Login` || 'Verification successfull! Please Login', Toast.SHORT);
+                    console.log(`userdata---------->>>>>`, response?.data);
+                } else {
+                    setLoading(false)
+                    Toast.show(response?.data?.message || 'otp verification failed failed', Toast.SHORT);
+                    console.log(`rejecteddddd`, response.data);
+                    Alert.alert(response?.data?.message)
+                }
+            }))
         } else {
             // Default action
             navigation.goBack();

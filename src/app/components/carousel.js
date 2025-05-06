@@ -28,7 +28,7 @@ const Carousel = ({ data = [], onPressItem = () => { }, interval = 3000, borderR
             
             onPress={() => onPressItem(item, index)} activeOpacity={0.8}>
                 <Image
-                    source={{ uri: item }}
+                  source={{ uri: item.banner_image }}
                     style={{
                         width: width*0.92,
                         // width:`100%`,

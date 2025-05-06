@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, Image, FlatList, Alert } from 'react-native'
+import { View, Text, TouchableOpacity, Image, FlatList, Alert, Button, } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import SystemNavigationBar from 'react-native-system-navigation-bar';
 import { COLORS } from '../../../res/colors';
@@ -14,19 +14,61 @@ import { GABRITO_MEDIUM } from '../../../../assets/fonts';
 import { productsData } from '../../../utils/data';
 import { useNavigation } from '@react-navigation/native';
 import { SCREEN } from '..';
+import { useDispatch } from 'react-redux';
+import { getBannersAction, getCategoriesAction } from '../../../redux/action';
+import Toast from "react-native-simple-toast";
+
 
 const Home = () => {
   const navigation = useNavigation()
+  const dispatch = useDispatch()
   const [products, setProducts] = useState(productsData || []);
   const [likedItems, setLikedItems] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showVariantModal, setShowVariantModal] = useState(false);
   const [variantQuantities, setVariantQuantities] = useState({});
+  const [bannerImages, setBannerImages] = useState([]);
+  const [categories, setCategories] = useState([]);
 
 
   useEffect(() => {
     SystemNavigationBar.setNavigationColor(COLORS.primaryAppColor, 'dark'); // 'dark' makes buttons grey
   }, []);
+
+  const fetchBanner = () => {
+    // console.log('DISPATCHING BANNER ACTION'); // ✅ Check if this appears
+    dispatch(getBannersAction((response) => {
+      // console.log('INSIDE CALLBACK'); // ✅ Check if this appears
+      if (response?.data?.status) {
+        const banners = response?.data?.data || [];
+        setBannerImages(banners);
+        // console.log('bannerImges-------->>>', bannerImages);
+
+      } else {
+        Toast.show(response?.data?.message || "Banner fetch failed", Toast.LONG);
+      }
+    }));
+  };
+
+  const fetchCategories = () => {
+    dispatch(getCategoriesAction((response) => {
+      if (response?.data?.status) {
+
+        const categoryData = response?.data?.data
+        setCategories(categoryData);
+        console.log('categories-------->>>', categoryData);
+
+      } else {
+        Toast.show(response?.data?.message || "category fetch failed", Toast.LONG);
+      }
+    }))
+  }
+
+  useEffect(() => {
+    fetchCategories()
+    fetchBanner()
+  }, [])
+
 
   const increaseQuantity = (key) => {
     setVariantQuantities((prev) => ({
@@ -58,13 +100,7 @@ const Home = () => {
     setLikedItems(updatedLikes);
   };
 
-
-  const images = [
-    'https://picsum.photos/id/1018/800/400',
-    'https://picsum.photos/id/1015/800/400',
-    'https://picsum.photos/id/1021/800/400',
-  ];
-  const categories = [
+  const categories1 = [
     { id: 1, name: 'Electronics', image: 'https://picsum.photos/60?random=1' },
     { id: 2, name: 'Fashion', image: 'https://picsum.photos/60?random=2' },
     { id: 3, name: 'Home', image: 'https://picsum.photos/60?random=3' },
@@ -196,66 +232,75 @@ const Home = () => {
   const renderHeader = () => (
     <View style={{}}>
       {/* 🔹 Carousel */}
-      <View style={{ height: height * 0.2, marginTop: verticalScale(12) }}>
-        <Carousel
-          data={images}
-          onPressItem={(item, index) => console.log('Image pressed:', item)}
-          interval={4000}
-          height={height * 0.2}
-        />
-      </View>
+      {
+        bannerImages.length > 0 && (
+          <View style={{ height: height * 0.2, marginTop: verticalScale(12) }}>
+            <Carousel
+              data={bannerImages}
+              // onPressItem={(item, index) => console.log('Image pressed:', item)}
+              onPressItem={(item, index) => { navigation.navigate(SCREEN.CATEGORY_PRODUCT_SCREEN, { data: item }) }}
+              interval={4000}
+              height={height * 0.2}
+            />
+          </View>
+        )
+      }
 
       {/* 🔹 Category Grid */}
+
 
       <View style={{ marginTop: verticalScale(15), paddingHorizontal: scale(13) }}>
         <TextComp style={{ fontSize: scale(14), marginBottom: verticalScale(8) }}>
           Shop by category
         </TextComp>
 
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
-          {categories.map((cat) => (  
-            <TouchableOpacity
-            activeOpacity={0.9}
-              key={cat.id}
-              onPress={() => { navigation.navigate(SCREEN.CATEGORY_PRODUCT_SCREEN, { data: cat.name }) }}
-              style={{
-                width: (width - scale(13) * 2) / 4 - scale(4), // Adjusted width with scale(13) padding
-                alignItems: 'center',
-                marginVertical: verticalScale(5),
-               
-              }}
-            >
-              <Image
-                source={{ uri: cat.image }}
+        {categories.length > 0 && (
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
+            {categories.map((cat) => (
+              <TouchableOpacity
+                activeOpacity={0.9}
+                key={cat.id}
+                onPress={() => { navigation.navigate(SCREEN.CATEGORY_PRODUCT_SCREEN, { data: cat }) }}
                 style={{
-                  height: scale(72),
-                  width: scale(70),
-                  borderRadius: scale(8),
-                  borderWidth: 1,
-                  borderColor: COLORS.secondaryAppColor || '#ccc',
-                  shadowColor: '#000',
-                  shadowOffset: { width: 0, height: 2 },
-                  shadowOpacity: 0.1,
-                  shadowRadius: scale(4),
-                  elevation: 7, // for Android
-                  overflow:'hidden'
-                }}
-                resizeMode="cover"
-              />
-              <TextComp
-                numberOfLines={1}
-                style={{
-                  fontSize: scale(11),
-                  marginTop: scale(5),
-                  textAlign: 'center',
+                  width: (width - scale(13) * 2) / 4 - scale(4), // Adjusted width with scale(13) padding
+                  alignItems: 'center',
+                  marginVertical: verticalScale(5),
+
                 }}
               >
-                {cat.name}
-              </TextComp>
-            </TouchableOpacity>
-          ))}
-        </View>
+                <Image
+                  source={{ uri: cat.image }}
+                  style={{
+                    height: scale(72),
+                    width: scale(70),
+                    borderRadius: scale(8),
+                    borderWidth: 1,
+                    borderColor: COLORS.secondaryAppColor || '#ccc',
+                    shadowColor: '#000',
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: 0.1,
+                    shadowRadius: scale(4),
+                    elevation: 7, // for Android
+                    overflow: 'hidden'
+                  }}
+                  resizeMode="cover"
+                />
+                <TextComp
+                  numberOfLines={1}
+                  style={{
+                    fontSize: scale(11),
+                    marginTop: scale(5),
+                    textAlign: 'center',
+                  }}
+                >
+                  {cat.name}
+                </TextComp>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
       </View>
+      {/* <Button title='fetch categories' onPress={fetchCategories} /> */}
 
       {/* 🔹 Divider + Products Section */}
       <TextComp
@@ -285,8 +330,10 @@ const Home = () => {
         key={(item) => { item.id }}
         // keyExtractor={(item) => item.id}
         renderItem={renderProductItem}
+        
         contentContainerStyle={{ paddingBottom: verticalScale(100) }}
       />
+
       {showVariantModal && (
         <View
           style={{
@@ -309,7 +356,7 @@ const Home = () => {
             }}
           >
             <TextComp style={{ fontSize: scale(15), fontWeight: 'bold', marginBottom: verticalScale(10) }}>
-              {selectedProduct?.description} Variants
+              {selectedProduct?.description}
             </TextComp>
 
             {selectedProduct?.variants?.length > 0 ? (
@@ -336,7 +383,8 @@ const Home = () => {
                   flex: 1,
                   marginRight: scale(10),
                 }}
-                onPress={() =>{ setShowVariantModal(false)
+                onPress={() => {
+                  setShowVariantModal(false)
                   setVariantQuantities({});
                 }}
               >

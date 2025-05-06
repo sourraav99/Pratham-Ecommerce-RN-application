@@ -24,6 +24,8 @@ const TextInputComp = ({
   customContainerStyle,
   keyboardType,
   maxLength,
+  editable,
+  selectTextOnFocus,
   ...props
 }) => {
   const [isSecure, setIsSecure] = useState(secureTextEntry);
@@ -36,6 +38,8 @@ const TextInputComp = ({
     )}
   <View style={[styles.container, customContainerStyle, { borderColor: customBorderColor || COLORS.borderColor }]}>
       <TextInput
+      editable={editable}
+      selectTextOnFocus={selectTextOnFocus}
       keyboardType={keyboardType}
       // keyboardType='phone-pad'
       maxLength={maxLength}

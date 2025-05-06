@@ -16,6 +16,7 @@ import { isIOS } from '../../hooks/platform'
 import Toast from 'react-native-simple-toast';
 import ImagePicker from 'react-native-image-crop-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { PROFILE_IMAGE_BASE_URL } from '../../../utils/config'
 
 
 
@@ -25,17 +26,17 @@ const SelfProfile = () => {
   const [keyboardVisible, setKeyboardVisible] = useState(false);
 
   // Input states
-  const [firstName, setFirstName] = useState('john');
-  const [lastName, setLastName] = useState('doe');
-  const [email, setEmail] = useState('example@gmail.com');
-  const [mobileNumber, setMobileNumber] = useState('8711832936');
-  const [businessName, setBusinessName] = useState('pratham enterprises');
-  const [businessType, setBusinessType] = useState('hardware');
-  const [gstNumber, setGstNumber] = useState('GSTNPLPLE8303820');
-  const [businessAddress, setBusinessAddress] = useState('Delhi ,India');
-  const [city, setCity] = useState('uttam nagar');
-  const [state, setState] = useState('Delhi NCR');
-  const [postalCode, setPostalCode] = useState('110031');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [mobileNumber, setMobileNumber] = useState('');
+  const [businessName, setBusinessName] = useState('');
+  const [businessType, setBusinessType] = useState('');
+  const [gstNumber, setGstNumber] = useState('');
+  const [businessAddress, setBusinessAddress] = useState('');
+  const [city, setCity] = useState('');
+  const [state, setState] = useState('');
+  const [postalCode, setPostalCode] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [userData, setUserData] = useState(null);
@@ -158,10 +159,10 @@ const SelfProfile = () => {
   if (loading) {
     return (
       // <Wrapper >
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <ActivityIndicator size="large" color={COLORS.secondaryAppColor} />
-          <Text style={{ marginTop: 10 }}>Loading profile...</Text>
-        </View>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color={COLORS.secondaryAppColor} />
+        <Text style={{ marginTop: 10 }}>Loading profile...</Text>
+      </View>
       // </Wrapper>
     );
   }
@@ -187,9 +188,9 @@ const SelfProfile = () => {
         <View style={{ width: verticalScale(100), alignSelf: 'center' }}>
           <Image source={
             profileImage
-              ? { uri: profileImage }
+              ? { uri: `${PROFILE_IMAGE_BASE_URL}${userData.image}` }
               : userData?.image
-                ? { uri: userData.image }
+                ? { uri: `${PROFILE_IMAGE_BASE_URL}${userData.image}` }
                 : IMAGES.DEFAULT_PROFILE
           } style={{ height: verticalScale(100), width: verticalScale(100), borderRadius: verticalScale(100) / 2, alignSelf: 'center', marginTop: height * 0.01, marginBottom: height * 0.03, borderWidth: 2 }} resizeMode='cover' />
           <View style={{ position: 'absolute', right: 12, top: verticalScale(82) }}>
@@ -210,7 +211,7 @@ const SelfProfile = () => {
             onChangeText={setLastName}
             placeholder={'Doe'} label={'Last Name'} style={{ flex: 0.95 }} />
         </View>
-        <TextInputComp value={email} onChangeText={setEmail} style={{ marginTop: verticalScale(12) }} placeholder={'Enter your email'} label={'E-mail'} />
+        <TextInputComp editable={false} selectTextOnFocus={false} value={email} onChangeText={setEmail} style={{ marginTop: verticalScale(12) }} placeholder={'Enter your email'} label={'E-mail'} />
         <TextInputComp value={mobileNumber} onChangeText={setMobileNumber} placeholder={'Mobile Number'} label={'Mobile Number'} style={{ marginTop: verticalScale(12) }} />
         <TextInputComp value={businessName} onChangeText={setBusinessName} placeholder={'Business Name'} label={'Business Name'} style={{ marginTop: verticalScale(12) }} />
         <TextInputComp value={businessType} onChangeText={setBusinessType} placeholder={'Business Type'} label={'Business Type'} style={{ marginTop: verticalScale(12) }} />

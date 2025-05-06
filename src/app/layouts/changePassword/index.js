@@ -1,10 +1,10 @@
-import { View, Text, Image, TouchableOpacity, Keyboard } from 'react-native'
+import { View, Text, Image, TouchableOpacity, Keyboard, Alert } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Wrapper from '../../components/wrapper'
 import { height, width } from '../../hooks/responsive'
-import { CommonActions, useNavigation, useTheme } from '@react-navigation/native'
+import { CommonActions, useNavigation, useRoute, useTheme } from '@react-navigation/native'
 import ButtonComp from '../../components/buttonComp'
-import { IMAGES } from '../../../res/images'
+import Toast from "react-native-simple-toast";
 import { moderateScale, scale, verticalScale } from 'react-native-size-matters'
 import { COLORS } from '../../../res/colors'
 import { SCREEN } from '..'
@@ -13,23 +13,63 @@ import TextComp from '../../components/textComp'
 import Icon from '../../../utils/icon'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { isIOS } from '../../hooks/platform'
+import { useDispatch } from 'react-redux'
+import { resetPasswordAction } from '../../../redux/action'
 
 const ChangePassword = () => {
     const navigation = useNavigation()
-
+    const route = useRoute();
+    const dispatch = useDispatch()
+    const email = route?.params?.email || 'example@gmail.com';
+    const [password, setPassword] = useState('')
+    const [confirmPassword, setConfirmPassword] = useState('')
+    const [error, setError] = useState('')
+    const [loading, setLoading] = useState(false)
 
     const handleBack = () => {
         navigation.goBack()
     }
 
     const handleReset = () => {
-        navigation.dispatch(
-          CommonActions.reset({
-            index: 0,
-            routes: [{ name: SCREEN.LOGIN }], // or whatever your login screen name is
-          })
-        );
-      };
+
+        setError('')
+
+        if (!password || !confirmPassword) {
+            setError('Both fields are required')
+            return
+        }
+
+        if (password !== confirmPassword) {
+            setError('Passwords do not match')
+            return
+        }
+
+        const payload = {
+            email:email,
+            new_password:password
+        }
+        setLoading(true)
+
+        dispatch(resetPasswordAction(payload, (response) => {
+            setLoading(false)
+            if (response?.data?.status) {
+                navigation.dispatch(
+                    CommonActions.reset({
+                        index: 0,
+                        routes: [{ name: SCREEN.LOGIN }], // or whatever your login screen name is
+                    })
+
+                );
+                Toast.show(`${response?.data?.message}` || 'Password change successfully! Please Login', Toast.SHORT);
+            } else {
+                Toast.show(response?.data?.message || 'password change failed', Toast.SHORT);
+                // console.log(`rejecteddddd`, response.data);
+                Alert.alert(response?.data?.message)
+            }
+        }))
+
+
+    };
     return (
         <Wrapper useBottomInset={true} useTopInsets={true} safeAreaContainerStyle={{}} childrenStyles={{ height: isIOS() ? height * 0.9 : height }}>
             <View style={{ height: verticalScale(50), width: width, alignSelf: 'center', justifyContent: 'center', paddingLeft: moderateScale(15) }}>
@@ -54,16 +94,25 @@ const ChangePassword = () => {
                 <TextInputComp showPasswordToggle
                     style={{ marginTop: verticalScale(25) }}
                     placeholder={'Password'}
-                    label={'Password'} />
-                    <TextComp style={{fontSize:scale(11),marginLeft:5,marginTop:2}}>{`Must contain 8 characters`}</TextComp>
+                    label={'Password'}
+                    value={password}
+                    onChangeText={setPassword} />
+
+                {/* <TextComp style={{ fontSize: scale(11), marginLeft: 5, marginTop: 2 }}>{`Must contain 8 characters`}</TextComp> */}
                 <TextInputComp
-                showPasswordToggle
+                    showPasswordToggle
+                    value={confirmPassword}
+                    onChangeText={setConfirmPassword}
                     style={{ marginTop: verticalScale(25) }}
                     placeholder={'Confirm Password'}
                     label={'Confirm Password'} />
+                {error ? (
+                    <TextComp style={{ color: COLORS.red, marginTop: scale(10), textAlign: 'center' }}>{error}</TextComp>
+                ) : null}
                 <ButtonComp
+                    loading={loading}
                     onPress={handleReset}
-                    title={'Send Reset Instruction'} buttonStyle={{ marginTop: verticalScale(40), position: 'absolute', bottom: verticalScale(50), width: width * 0.89 }} textStyle={{ color: COLORS.white }} />
+                    title={'Change password'} buttonStyle={{ marginTop: verticalScale(40), position: 'absolute', bottom: verticalScale(50), width: width * 0.89 }} textStyle={{ color: COLORS.white }} />
             </KeyboardAwareScrollView>
         </Wrapper>
     )
