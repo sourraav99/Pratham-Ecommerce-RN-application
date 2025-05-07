@@ -6,7 +6,7 @@ import Wrapper from '../../components/wrapper';
 import TextComp from '../../components/textComp';
 import { COLORS } from '../../../res/colors';
 import Icon from '../../../utils/icon';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import RenderHtml from 'react-native-render-html';
 
 const { width } = Dimensions.get('window');
@@ -36,15 +36,22 @@ const source = {
 };
 const SingleProductScreen = () => {
     const navigation = useNavigation()
+    const route=useRoute();
+    const {data}=route?.params||{}
+    console.log('data==============>>>>>',data);
+    
     const mediaItems = [
-        { type: 'image', uri: product.display_image },
-        ...product.more_images.map(uri => ({ type: 'image', uri })),
-        ...(product.video_link ? [{ type: 'video', uri: product.video_link }] : [])
+        ...(data.display_image ? [{ type: 'image', uri: product.display_image }] : []),
+        ...((data.more_images || []).map(uri => ({ type: 'image', uri }))),
+        ...(data.video_link ? [{ type: 'video', uri: product.video_link }] : [])
     ];
 
-    const [selectedMedia, setSelectedMedia] = useState(mediaItems[0]);
+    const [selectedMedia, setSelectedMedia] = useState(mediaItems[0] || null);
+
 
     const renderSelectedMedia = () => {
+        if (!selectedMedia) return null;
+
         if (selectedMedia.type === 'image') {
             return (
                 <Image
@@ -66,6 +73,7 @@ const SingleProductScreen = () => {
             );
         }
     };
+
 
     return (
         <Wrapper childrenStyles={{ backgroundColor: 'white', flex: 1, width: width }}>
@@ -106,23 +114,23 @@ const SingleProductScreen = () => {
 
                 {/* Product Info */}
                 <View style={styles.infoContainer}>
-                    <TextComp style={styles.title}>{product.product_name}</TextComp>
-                    <TextComp style={styles.price}>₹{product.price} <TextComp style={styles.mrp}>₹{product.mrp}</TextComp></TextComp>
-                    <TextComp style={styles.meta}>Size: {product.size} | Unit: {product.unit}</TextComp>
+                    <TextComp style={styles.title}>{data.product_name}</TextComp>
+                    <TextComp style={styles.price}>₹{data.price} <TextComp style={styles.mrp}>₹{data.mrp}</TextComp></TextComp>
+                    <TextComp style={styles.meta}>Size: {data.size} | Unit: {data.unit}</TextComp>
                 </View>
 
                 {/* Description */}
                 <View style={styles.descriptionContainer}>
                     <TextComp style={styles.sectionTitle}>Description</TextComp>
 
-                    {product?.description && (
-                        <RenderHtml source={{ html: product.description }} contentWidth={width} />
+                    {data?.description && (
+                        <RenderHtml source={{ html: data.description }} contentWidth={width} />
                     )}
                     {/* <TextComp>{stripHtml(product.description)}</TextComp> */}
                 </View>
             </ScrollView>
             <View style={styles.bottomBar}>
-                <TextComp style={styles.bottomPrice}>₹{product.price}</TextComp>
+                <TextComp style={styles.bottomPrice}>₹{data.price}</TextComp>
                 <TouchableOpacity style={styles.addToCartBtn}>
                     <TextComp style={styles.addToCartText}>Add to Cart</TextComp>
                 </TouchableOpacity>

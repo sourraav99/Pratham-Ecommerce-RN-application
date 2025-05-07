@@ -23,7 +23,7 @@ import { addToFavourites, removeFromFavourites } from '../../../redux/slices/fav
 const Home = () => {
   const navigation = useNavigation()
   const dispatch = useDispatch()
-  const favorites = useSelector(state => state.favorites.items); 
+  const favorites = useSelector(state => state.favorites.items);
   const [products, setProducts] = useState([]);
   const [likedItems, setLikedItems] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -96,8 +96,8 @@ const Home = () => {
     }));
   };
 
-  const navigateToSingleProductScreen=()=>{
-    navigation.navigate(SCREEN.SINGLE_PRODUCT_SCREEN)
+  const navigateToSingleProductScreen = (item) => {
+    navigation.navigate(SCREEN.SINGLE_PRODUCT_SCREEN, { data: item })
   }
 
   // const toggleLike = async (item) => {
@@ -118,7 +118,7 @@ const Home = () => {
 
   const toggleLike = (item) => {
     const isAlreadyInFavorites = favorites.some(fav => fav.id === item.id);
-  
+
     if (isAlreadyInFavorites) {
       dispatch(removeFromFavourites(item.id));
       Toast.show('Item removed from favourites');
@@ -127,7 +127,7 @@ const Home = () => {
       Toast.show('Item added to favourites');
     }
   };
-  
+
 
   const RenderItem = ({ item, index }) => {
     const key = `${selectedProduct._id}_${index}`;
@@ -187,7 +187,7 @@ const Home = () => {
 
     return (
 
-      <TouchableOpacity onPress={navigateToSingleProductScreen} style={{ width: width, alignSelf: 'center'}}>
+      <TouchableOpacity onPress={()=>{navigateToSingleProductScreen(item)}} style={{ width: width, alignSelf: 'center' }}>
         <View
           style={{
             flexDirection: 'row',
