@@ -22,11 +22,11 @@ export const resetPasswordAction = (payload, callBack) => ({
     type: TYPES['RESET_PASSWORD_ACTION'], payload, callBack
 })
 
-export const getBannersAction = ( callBack) => ({
+export const getBannersAction = (callBack) => ({
     type: TYPES['GET_BANNERS_ACTION'], callBack
 })
 
-export const getCategoriesAction = ( callBack) => ({
+export const getCategoriesAction = (callBack) => ({
     type: TYPES['GET_CATEGORIES_ACTION'], callBack
 })
 
@@ -34,7 +34,10 @@ export const getProductsByCategoryAction = (payload, callBack) => ({
     type: TYPES['GET_PRODUCTS_BY_CATEGORY'], payload, callBack
 })
 
-export const getProductsAction = ( callBack) => ({
-    type: TYPES['GET_PRODUCTS'],callBack
+export const getProductsAction = (callBack) => ({
+    type: TYPES['GET_PRODUCTS'], callBack
 })
 
+export const getSearchAction = (payload, callBack) => ({
+    type: TYPES['GET_SEARCH'], payload, callBack
+})

@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity, Image, FlatList, Alert, Button, } from 'react-native'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import SystemNavigationBar from 'react-native-system-navigation-bar';
 import { COLORS } from '../../../res/colors';
 import Wrapper from '../../components/wrapper';
@@ -14,14 +14,16 @@ import { GABRITO_MEDIUM } from '../../../../assets/fonts';
 import { productsData } from '../../../utils/data';
 import { useNavigation } from '@react-navigation/native';
 import { SCREEN } from '..';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { getBannersAction, getCategoriesAction, getProductsAction } from '../../../redux/action';
 import Toast from "react-native-simple-toast";
+import { addToFavourites, removeFromFavourites } from '../../../redux/slices/favouritesSlice';
 
 
 const Home = () => {
   const navigation = useNavigation()
   const dispatch = useDispatch()
+  const favorites = useSelector(state => state.favorites.items); 
   const [products, setProducts] = useState([]);
   const [likedItems, setLikedItems] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -67,6 +69,7 @@ const Home = () => {
   const fetchProducts = () => {
     dispatch(getProductsAction((response) => {
       console.log(`productsResponse${JSON.stringify(response?.data)}`);
+      console.log(`productsResponse length${response?.data?.data.length}`);
       setProducts(response?.data?.data || [])
     }))
 
@@ -97,20 +100,34 @@ const Home = () => {
     navigation.navigate(SCREEN.SINGLE_PRODUCT_SCREEN)
   }
 
-  const toggleLike = async (item) => {
-    const isLiked = likedItems.includes(item._id);
-    let updatedLikes;
+  // const toggleLike = async (item) => {
+  //   const isLiked = likedItems.includes(item._id);
+  //   let updatedLikes;
 
-    if (isLiked) {
-      updatedLikes = likedItems.filter(id => id !== item._id);
+  //   if (isLiked) {
+  //     updatedLikes = likedItems.filter(id => id !== item._id);
+  //   } else {
+  //     updatedLikes = [...likedItems, item._id];
+  //     // 🔜 In future, store liked item in AsyncStorage
+  //     // await AsyncStorage.setItem('likedItems', JSON.stringify(updatedLikes));
+  //   }
+
+  //   setLikedItems(updatedLikes);
+  // };
+
+
+  const toggleLike = (item) => {
+    const isAlreadyInFavorites = favorites.some(fav => fav.id === item.id);
+  
+    if (isAlreadyInFavorites) {
+      dispatch(removeFromFavourites(item.id));
+      Toast.show('Item removed from favourites');
     } else {
-      updatedLikes = [...likedItems, item._id];
-      // 🔜 In future, store liked item in AsyncStorage
-      // await AsyncStorage.setItem('likedItems', JSON.stringify(updatedLikes));
+      dispatch(addToFavourites(item));
+      Toast.show('Item added to favourites');
     }
-
-    setLikedItems(updatedLikes);
   };
+  
 
   const RenderItem = ({ item, index }) => {
     const key = `${selectedProduct._id}_${index}`;
@@ -164,7 +181,10 @@ const Home = () => {
   }
 
   const renderProductItem = useCallback(({ item }) => {
-    const isLiked = likedItems.includes(item._id);
+    // const favoriteIds = useMemo(() => new Set(favorites.map(f => f.id)), [favorites]);
+
+    const isLiked = favorites.some(fav => fav.id === item.id);
+
     return (
 
       <TouchableOpacity onPress={navigateToSingleProductScreen} style={{ width: width, alignSelf: 'center'}}>
@@ -194,12 +214,12 @@ const Home = () => {
           >
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', }}>
               <View style={{ flex: 1, paddingLeft: moderateScale(5) }}>
-                {/* <TextComp style={{ fontSize: scale(12), marginTop: scale(3), color: COLORS.secondaryAppColor }}>
-                  {item.brand}
-                </TextComp> */}
                 <TextComp style={{ fontSize: scale(12), marginTop: scale(3), color: COLORS.secondaryAppColor }}>
-                  Pioneer
+                  {item.brand.name}
                 </TextComp>
+                {/* <TextComp style={{ fontSize: scale(12), marginTop: scale(3), color: COLORS.secondaryAppColor }}>
+                  Pioneer
+                </TextComp> */}
                 <TextComp numberOfLines={2} style={{ fontSize: scale(13), fontWeight: `900`, color: COLORS.secondaryAppColor }}>
                   {item.product_name}
                 </TextComp>

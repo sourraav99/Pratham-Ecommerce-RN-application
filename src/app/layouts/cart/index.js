@@ -1,4 +1,4 @@
-import { View, ScrollView, TouchableOpacity, ActivityIndicator, Image, Pressable, FlatList } from 'react-native';
+import { View, ScrollView, TouchableOpacity, ActivityIndicator, Image, Pressable, FlatList, StyleSheet } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { moderateScale, scale, verticalScale } from 'react-native-size-matters';
 import Icon from '../../../utils/icon';
@@ -17,7 +17,7 @@ const Cart = () => {
   const renderFooter = () => {
     return (
 
-      <View style={{ paddingHorizontal: moderateScale(16), paddingVertical: verticalScale(10),}}>
+      <View style={{ paddingHorizontal: moderateScale(16), paddingVertical: verticalScale(10), }}>
         <View style={{ marginBottom: verticalScale(15) }}>
           <TextComp style={{ fontSize: scale(16), fontWeight: 'bold', marginBottom: verticalScale(8) }}>
             Select Payment Method
@@ -215,11 +215,15 @@ const Cart = () => {
         // keyExtractor={(item) => item.id}
         renderItem={renderProductItem}
 
-        contentContainerStyle={{ paddingBottom: verticalScale(100) }}
+        contentContainerStyle={{ paddingBottom: verticalScale(110) }}
       />
-      <View style={{
-        position: 'absolute',
-        bottom: 0,
+     <View style={{    position: 'absolute', bottom: -1,
+        elevation: 15,
+
+     }}>
+     <View style={{
+        // position: 'absolute',
+       
         width: width,
         backgroundColor: 'lightblue',
         paddingVertical: verticalScale(10),
@@ -232,7 +236,7 @@ const Cart = () => {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        elevation: 15,
+        // elevation: 15,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: -2 },
         shadowOpacity: 0.1,
@@ -243,9 +247,53 @@ const Cart = () => {
         </TextComp>
         <Icon type='Feather' name='check-circle' color={'#155724'} size={20} />
       </View>
+      <View style={styles.bottomBar}>
+        {/* <TextComp style={styles.bottomPrice}>₹{product.price}</TextComp> */}
+        <TextComp style={styles.bottomPrice}>₹{`700`}</TextComp>
+        <TouchableOpacity style={styles.addToCartBtn}>
+          <TextComp style={styles.addToCartText}>Proceed to buy</TextComp>
+        </TouchableOpacity>
+      </View>
+     </View>
 
     </Wrapper>
   )
 }
 
 export default Cart
+
+const styles = StyleSheet.create({
+  bottomBar: {
+
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: COLORS.secondaryAppColor,
+    borderTopWidth: 0.5,
+    borderColor: '#ccc',
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+
+  bottomPrice: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: COLORS.white,
+  },
+
+  addToCartBtn: {
+    backgroundColor: 'orange',
+    paddingVertical: 5,
+    paddingHorizontal: 15,
+    borderRadius: 100,
+  },
+
+  addToCartText: {
+    color: COLORS.secondaryAppColor,
+    fontWeight: 'bold',
+  },
+
+})
