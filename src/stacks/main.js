@@ -8,6 +8,7 @@ import DrawerStack from './drawerStack';
 import CategoryProductsScreen from '../app/layouts/CategoryProductsScreen';
 import Search from '../app/layouts/search';
 import OrderStatus from '../app/layouts/orderStatus';
+import SingleProductScreen from '../app/layouts/singleProductScreen';
 
 
 
@@ -20,6 +21,7 @@ const Main = () => {
      <Stack.Screen name={SCREEN.SEARCH} component={Search} options={{}}/>   
       <Stack.Screen name={SCREEN.CATEGORY_PRODUCT_SCREEN} component={CategoryProductsScreen} options={{}}/> 
       <Stack.Screen name={SCREEN.ORDER_STATUS} component={OrderStatus} options={{}}/> 
+      <Stack.Screen name={SCREEN.SINGLE_PRODUCT_SCREEN} component={SingleProductScreen} options={{}}/> 
     </Stack.Navigator>
   )
 }

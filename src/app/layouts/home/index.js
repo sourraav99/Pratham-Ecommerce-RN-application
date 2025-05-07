@@ -22,7 +22,7 @@ import Toast from "react-native-simple-toast";
 const Home = () => {
   const navigation = useNavigation()
   const dispatch = useDispatch()
-  const [products, setProducts] = useState();
+  const [products, setProducts] = useState([]);
   const [likedItems, setLikedItems] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showVariantModal, setShowVariantModal] = useState(false);
@@ -93,6 +93,9 @@ const Home = () => {
     }));
   };
 
+  const navigateToSingleProductScreen=()=>{
+    navigation.navigate(SCREEN.SINGLE_PRODUCT_SCREEN)
+  }
 
   const toggleLike = async (item) => {
     const isLiked = likedItems.includes(item._id);
@@ -108,18 +111,6 @@ const Home = () => {
 
     setLikedItems(updatedLikes);
   };
-
-  const categories1 = [
-    { id: 1, name: 'Electronics', image: 'https://picsum.photos/60?random=1' },
-    { id: 2, name: 'Fashion', image: 'https://picsum.photos/60?random=2' },
-    { id: 3, name: 'Home', image: 'https://picsum.photos/60?random=3' },
-    { id: 4, name: 'Beauty', image: 'https://picsum.photos/60?random=4' },
-    { id: 5, name: 'Toys', image: 'https://picsum.photos/60?random=5' },
-    { id: 6, name: 'Groceries', image: 'https://picsum.photos/60?random=6' },
-    { id: 7, name: 'Books', image: 'https://picsum.photos/60?random=7' },
-    { id: 8, name: 'Fitness', image: 'https://picsum.photos/60?random=8' },
-  ];
-
 
   const RenderItem = ({ item, index }) => {
     const key = `${selectedProduct._id}_${index}`;
@@ -176,7 +167,7 @@ const Home = () => {
     const isLiked = likedItems.includes(item._id);
     return (
 
-      <View style={{ width: width, alignSelf: 'center' }}>
+      <TouchableOpacity onPress={navigateToSingleProductScreen} style={{ width: width, alignSelf: 'center'}}>
         <View
           style={{
             flexDirection: 'row',
@@ -242,7 +233,7 @@ const Home = () => {
             </View>
           </View>
         </View>
-      </View>
+      </TouchableOpacity>
     );
 
   })
