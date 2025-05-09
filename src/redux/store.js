@@ -8,7 +8,7 @@ import  authReducer from "../redux/slices/authSlice";
 import categoryReducer from './reducer/category.reducer';
 import cartReducer from "../redux/slices/cartSlice";
 import favouritesReducer from "../redux/slices/favouritesSlice";
-
+import userDataReducer from "../redux/slices/userDataSlice";
 
 
 
@@ -20,12 +20,13 @@ const rootReducer = combineReducers({
   category: categoryReducer,
   cart: cartReducer,
   favorites: favouritesReducer,
+  userData:userDataReducer
 });
 
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
-  whitelist: ['cart', 'favorites'], // Only persist these reducers
+  whitelist: ['cart', 'favorites','userData'], // Only persist these reducers
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

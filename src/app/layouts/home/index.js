@@ -100,22 +100,6 @@ const Home = () => {
     navigation.navigate(SCREEN.SINGLE_PRODUCT_SCREEN, { data: item })
   }
 
-  // const toggleLike = async (item) => {
-  //   const isLiked = likedItems.includes(item._id);
-  //   let updatedLikes;
-
-  //   if (isLiked) {
-  //     updatedLikes = likedItems.filter(id => id !== item._id);
-  //   } else {
-  //     updatedLikes = [...likedItems, item._id];
-  //     // 🔜 In future, store liked item in AsyncStorage
-  //     // await AsyncStorage.setItem('likedItems', JSON.stringify(updatedLikes));
-  //   }
-
-  //   setLikedItems(updatedLikes);
-  // };
-
-
   const toggleLike = (item) => {
     const isAlreadyInFavorites = favorites.some(fav => fav.id === item.id);
 
@@ -130,7 +114,7 @@ const Home = () => {
 
 
   const RenderItem = ({ item, index }) => {
-    const key = `${selectedProduct._id}_${index}`;
+    const key = `${selectedProduct.id}_${index}`;
     const quantity = variantQuantities[key] || 0;
     return (
       <View
@@ -143,9 +127,10 @@ const Home = () => {
           alignItems: 'center',
         }}
       >
-        {/* <TextComp>{`${item.value}${item.unit} - ₹${item.price}`}</TextComp> */}
-        <TextComp>{`9mm - ₹100`}</TextComp>
+        <TextComp>{`${item.size}-₹${item.price}`}</TextComp>
+        {/* <TextComp>{`9mm - ₹100`}</TextComp> */}
 
+        {/* <TextComp>{`₹${item.price}`}</TextComp> */}
         <View
           style={{
             flexDirection: 'row',
@@ -187,7 +172,7 @@ const Home = () => {
 
     return (
 
-      <TouchableOpacity onPress={()=>{navigateToSingleProductScreen(item)}} style={{ width: width, alignSelf: 'center' }}>
+      <TouchableOpacity onPress={() => { navigateToSingleProductScreen(item) }} style={{ width: width, alignSelf: 'center' }}>
         <View
           style={{
             flexDirection: 'row',
@@ -395,17 +380,35 @@ const Home = () => {
               backgroundColor: COLORS.white,
               borderRadius: scale(10),
               padding: scale(15),
-              maxHeight: height * 0.6,
+              maxHeight: height * 0.75,
             }}
           >
-            <TextComp style={{ fontSize: scale(15), fontWeight: 'bold', marginBottom: verticalScale(10) }}>
-              {selectedProduct?.description}
+            <TextComp style={{ fontSize: scale(13), fontWeight: 'bold', marginBottom: verticalScale(10), textAlign: 'center' }}>
+              {`${selectedProduct?.product_name}\nHSN Code:${selectedProduct?.hsn_code}`}
             </TextComp>
+            <Image
+              source={{ uri: `${selectedProduct.display_image} ` }}
+              style={{
+                width: verticalScale(40),
+                height: verticalScale(40),
+                alignSelf: 'center'
+              }}
+              resizeMode="cover"
+            />
+            {selectedProduct?.variants?.length > 0 && (
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                <View>
+                  <TextComp style={{ fontSize: scale(10) }}>Size/UOM- ₹Price</TextComp>
+                </View>
+                <TextComp style={{ fontSize: scale(10) }}>Qty.</TextComp>
+              </View>
+            )}
 
             {selectedProduct?.variants?.length > 0 ? (
               <FlatList
+                showsVerticalScrollIndicator={false}
                 data={selectedProduct.variants}
-                key={(item) => item._id}
+                key={(item) => item.id}
                 // keyExtractor={(item, index) => index.toString()}
                 renderItem={({ item, index }) => <RenderItem item={item} index={index} />}
 
@@ -436,7 +439,7 @@ const Home = () => {
               {selectedProduct?.variants?.length > 0 && (
                 <TouchableOpacity
                   style={{
-                    backgroundColor: COLORS.black,
+                    backgroundColor: COLORS.primaryAppColor,
                     paddingVertical: scale(10),
                     borderRadius: scale(6),
                     flex: 1,

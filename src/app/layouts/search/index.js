@@ -10,13 +10,14 @@ import { COLORS } from '../../../res/colors';
 import Icon from '../../../utils/icon';
 import { useNavigation } from '@react-navigation/native';
 import TextComp from '../../components/textComp';
+import { SCREEN } from '..';
 // import { getSearchAction } from '../../redux/actions/productActions'; // update import as needed
 
 const DEBOUNCE_DELAY = 500;
 
 const SearchResults = () => {
     const dispatch = useDispatch();
-    const navigation=useNavigation()
+    const navigation = useNavigation()
     const [searchText, setSearchText] = useState('');
     const [debouncedText, setDebouncedText] = useState('');
     const [results, setResults] = useState([]);
@@ -67,9 +68,19 @@ const SearchResults = () => {
 
     }, [debouncedText]);
 
+    const navigateToScreen = (item) => {
+        if (item.type === 'product') {
+            navigation.navigate(SCREEN.SINGLE_PRODUCT_SCREEN, { data: item });
+        } else if (item.type === 'category') {
+            navigation.navigate(SCREEN.CATEGORY_PRODUCT_SCREEN, { data: item });
+        } else {
+            console.warn('Unknown item type:', item.type);
+        }
+    }
+
     const renderItem = useCallback(({ item }) => (
         <TouchableOpacity
-            onPress={() => console.log(`${item.type} clicked:`, item)}
+            onPress={() => { navigateToScreen(item) }}
             style={{
                 flexDirection: 'row',
                 alignItems: 'center',
@@ -77,7 +88,7 @@ const SearchResults = () => {
                 borderBottomWidth: 0.5,
                 borderColor: '#ccc',
                 // width:width*0.90
-                flex:1,
+                flex: 1,
                 // backgroundColor:'blue'
             }}
         >
@@ -86,7 +97,7 @@ const SearchResults = () => {
                 style={{ width: verticalScale(40), height: verticalScale(40), borderRadius: 6, marginRight: 10 }}
                 resizeMode='cover'
             />
-            <TextComp numberOfLines={2} style={{ fontSize: 16 ,flex:1}}>{item.name || item.product_name}</TextComp>
+            <TextComp numberOfLines={2} style={{ fontSize: 16, flex: 1 }}>{item.name || item.product_name}</TextComp>
         </TouchableOpacity>
     ), []);
 
@@ -107,11 +118,11 @@ const SearchResults = () => {
                 <ActivityIndicator size="large" style={{ marginTop: 20 }} />
             ) : (
                 <FlatList
-                showsVerticalScrollIndicator={false}
+                    showsVerticalScrollIndicator={false}
                     data={results}
                     keyExtractor={(item, index) => item._id + item.type + index}
                     renderItem={renderItem}
-                    contentContainerStyle={{paddingBottom:verticalScale(100),width:width}}
+                    contentContainerStyle={{ paddingBottom: verticalScale(100), width: width }}
                     // ListFooterComponent={()=>{
                     //     return(
                     //         <View>

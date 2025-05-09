@@ -9,4 +9,5 @@ CREDIT:require('../images/Vector.png'),
 DEFAULT_PROFILE:require('../images/profile.png'),
 NO_PRODUCT:require('../images/noProduct.png'),
 REFRAL_CODE:require('../images/code.png'),
+WARRENTY:require('../images/warrenty.png'),
 }

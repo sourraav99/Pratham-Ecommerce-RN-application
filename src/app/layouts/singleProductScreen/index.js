@@ -8,6 +8,8 @@ import { COLORS } from '../../../res/colors';
 import Icon from '../../../utils/icon';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import RenderHtml from 'react-native-render-html';
+import { IMAGES } from '../../../res/images';
+import { useSelector } from 'react-redux';
 
 const { width } = Dimensions.get('window');
 
@@ -36,12 +38,14 @@ const source = {
 };
 const SingleProductScreen = () => {
     const navigation = useNavigation()
-    const route=useRoute();
-    const {data}=route?.params||{}
-    console.log('data==============>>>>>',data);
-    
+    const route = useRoute();
+    const { data } = route?.params || {}
+    console.log('data==============>>>>>', data.display_image);
+    const cartItems = useSelector(state => state.cart.items);
+    const isInCart = cartItems.some(item => item.id === data.id); // or match on another unique key
+
     const mediaItems = [
-        ...(data.display_image ? [{ type: 'image', uri: product.display_image }] : []),
+        ...(data.display_image ? [{ type: 'image', uri: data.display_image }] : []),
         ...((data.more_images || []).map(uri => ({ type: 'image', uri }))),
         ...(data.video_link ? [{ type: 'video', uri: product.video_link }] : [])
     ];
@@ -57,7 +61,7 @@ const SingleProductScreen = () => {
                 <Image
                     source={{ uri: selectedMedia.uri }}
                     style={styles.mainMedia}
-                    resizeMode="cover"
+                    resizeMode="contain"
                 />
             );
         } else {
@@ -86,8 +90,9 @@ const SingleProductScreen = () => {
                     <TouchableOpacity style={{ padding: 15 }}>
                         <Icon type='Entypo' name='share' color={COLORS.secondaryAppColor} size={22} />
                     </TouchableOpacity>
-                    <TouchableOpacity style={{ padding: 15 }}>
-                        <Icon type='FontAwesome' name='heart' color={COLORS.secondaryAppColor} size={22} />
+                    <TouchableOpacity onPress={()=>{console.log(`dtaa=====>>>>${cartItems}`);
+                    }} style={{ padding: 15 }}>
+                        <Icon type='FontAwesome' name='heart'  color={isInCart ? COLORS.red: COLORS.secondaryAppColor} size={22} />
                     </TouchableOpacity>
                 </View>
             </View>
@@ -115,10 +120,25 @@ const SingleProductScreen = () => {
                 {/* Product Info */}
                 <View style={styles.infoContainer}>
                     <TextComp style={styles.title}>{data.product_name}</TextComp>
-                    <TextComp style={styles.price}>₹{data.price} <TextComp style={styles.mrp}>₹{data.mrp}</TextComp></TextComp>
-                    <TextComp style={styles.meta}>Size: {data.size} | Unit: {data.unit}</TextComp>
+                  <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}>
+                  <View>
+                        <TextComp style={styles.price}>₹{data.price} <TextComp style={{
+                            fontSize: scale(14),
+                            marginLeft: 8
+                        }}
+                        >Incl GST</TextComp></TextComp>
+                        {/* <TextComp style={styles.meta}>Size: {data.size} | Unit: {data.unit}</TextComp> */}
+                        <TextComp style={{ fontSize: scale(14) }}>MRP: <TextComp style={styles.mrp}>₹{data.mrp}</TextComp></TextComp>
+                    </View>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <Image source={IMAGES.WARRENTY} style={{ height: verticalScale(40), width: verticalScale(40),marginRight:moderateScale(5) }} resizeMode='contain' />
+                        <View style={{ backgroundColor: `#ccc`, paddingHorizontal: verticalScale(8), paddingVertical: verticalScale(3), borderRadius: 5 }}>
+                            <TextComp>{data.hsn_code||''}</TextComp>
+                        </View>
+                    </View>
+                  </View>
                 </View>
-
+                {/* ₹{data.mrp} */}
                 {/* Description */}
                 <View style={styles.descriptionContainer}>
                     <TextComp style={styles.sectionTitle}>Description</TextComp>
@@ -167,7 +187,7 @@ const styles = StyleSheet.create({
     mainMedia: {
         width: width,
         height: verticalScale(250),
-        backgroundColor: '#000',
+        backgroundColor: COLORS.white,
     },
     thumbnailRow: {
         paddingVertical: 10,
@@ -198,7 +218,8 @@ const styles = StyleSheet.create({
     },
     infoContainer: {
         paddingHorizontal: 20,
-        marginTop: 10
+        marginTop: 10,
+        // backgroundColor: 'red'
     },
     title: {
         fontSize: 18,
@@ -212,8 +233,8 @@ const styles = StyleSheet.create({
         marginTop: 4
     },
     mrp: {
-        fontSize: 14,
-        color: '#999',
+        fontSize: scale(14),
+        color: COLORS.red,
         textDecorationLine: 'line-through',
         marginLeft: 8
     },
@@ -230,7 +251,7 @@ const styles = StyleSheet.create({
     sectionTitle: {
         fontSize: 16,
         fontWeight: '600',
-        marginBottom: 10
+        // marginBottom: 10
     },
     bottomBar: {
         position: 'absolute',

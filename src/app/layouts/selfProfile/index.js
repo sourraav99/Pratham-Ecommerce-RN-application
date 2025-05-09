@@ -17,13 +17,20 @@ import Toast from 'react-native-simple-toast';
 import ImagePicker from 'react-native-image-crop-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { PROFILE_IMAGE_BASE_URL } from '../../../utils/config'
+import { useDispatch, useSelector } from 'react-redux'
+import { editProfileAction } from '../../../redux/action'
+import { setUserData } from '../../../redux/slices/userDataSlice'
 
 
 
 const SelfProfile = () => {
-
+  const dispatch = useDispatch()
   const navigation = useNavigation()
   const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const usersData = useSelector((state) => state.userData.userData);
+
+  // console.log(`usersData--------->>>>>>>`,usersData);
+  // console.log(usersData?.profileImage);
 
   // Input states
   const [firstName, setFirstName] = useState('');
@@ -39,33 +46,29 @@ const SelfProfile = () => {
   const [postalCode, setPostalCode] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [userData, setUserData] = useState(null);
+  const [buttonLoading, setButtonLoading] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false)
 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const json = await AsyncStorage.getItem('userData');
-        if (json) {
-          const parsed = JSON.parse(json);
-          setUserData(parsed);
-
-          // Prefill form fields
-          setFirstName(parsed.first_name || '');
-          setLastName(parsed.last_name || '');
-          setEmail(parsed.email || '');
-          setMobileNumber(parsed.mobile_number || '');
-          setBusinessName(parsed.business_name || '');
-          setBusinessType(parsed.business_type || '');
-          setGstNumber(parsed.gst_number || '');
-          setBusinessAddress(parsed.business_address || '');
-          setCity(parsed.city || '');
-          setState(parsed.state || '');
-          setPostalCode(parsed.postal_code || '');
-        }
+        // Prefill form fields
+        setFirstName(usersData.first_name || '');
+        setLastName(usersData.last_name || '');
+        setEmail(usersData.email || '');
+        setMobileNumber(usersData.mobile_number || '');
+        setBusinessName(usersData.business_name || '');
+        setBusinessType(usersData.business_type || '');
+        setGstNumber(usersData.gst_number || '');
+        setBusinessAddress(usersData.business_address || '');
+        setCity(usersData.city || '');
+        setState(usersData.state || '');
+        setPostalCode(usersData.postal_code || '');
+        // }
       } catch (e) {
-        console.log('Failed to load user data:', e);
+        // console.log('Failed to load user data:', e);
       } finally {
         setLoading(false)
       }
@@ -108,13 +111,21 @@ const SelfProfile = () => {
         width: 300,
         height: 400,
         cropping: true,
+        mediaType: 'photo',
       });
-      setProfileImage(image.path);
-      console.log('Selected image:', image);
+
+      if (image && image.path) {
+        // console.log('Selected image object:', image);
+        // console.log('Image path:', image.path);
+        setProfileImage(image); // store the full image object
+      } else {
+        // console.log('No image selected or path missing');
+      }
     } catch (err) {
-      console.log('Image picker error:', err);
+      // console.log('Image picker error:', err);
     }
   };
+
   const handleBack = () => {
     navigation.dispatch(
       CommonActions.reset({
@@ -123,38 +134,87 @@ const SelfProfile = () => {
       })
     );
   };
+
+
+
   const handleSave = async () => {
-    // Trim values
-    const payload = {
-      firstName: firstName.trim(),
-      lastName: lastName.trim(),
+    const trimmedPassword = password.trim();
+    const trimmedConfirmPassword = confirmPassword.trim();
+
+
+    // If either password or confirm password has data, ensure they match
+    if ((trimmedPassword || trimmedConfirmPassword) && trimmedPassword !== trimmedConfirmPassword) {
+      setError(true);
+      return;
+    } else {
+      setError(false);
+    }
+    setButtonLoading(true)
+    // Start building raw payload
+    const rawPayload = {
+      first_name: firstName.trim(),
+      last_name: lastName.trim(),
       email: email.trim(),
-      mobileNumber: mobileNumber.trim(),
-      businessName: businessName.trim(),
-      businessType: businessType.trim(),
-      gstNumber: gstNumber.trim(),
-      businessAddress: businessAddress.trim(),
+      mobile_number: mobileNumber.trim(),
+      business_name: businessName.trim(),
+      business_type: businessType.trim(),
+      gst_number: gstNumber.trim(),
+      business_address: businessAddress.trim(),
       city: city.trim(),
       state: state.trim(),
-      postalCode: postalCode.trim(),
-      password: password.trim(),
-      confirmPassword: confirmPassword.trim(),
+      postal_code: postalCode.trim(),
     };
 
-    try {
-      const allKeys = await AsyncStorage.getAllKeys();
-      const allData = await AsyncStorage.multiGet(allKeys);
-
-      console.log('===== AsyncStorage Data =====');
-      allData.forEach(([key, value]) => {
-        console.log(`${key}: ${value}`);
-      });
-      console.log('=============================');
-    } catch (error) {
-      console.log('Error reading AsyncStorage:', error);
+    // Conditionally add password if it's non-empty and matches confirm password
+    if (trimmedPassword && trimmedPassword === trimmedConfirmPassword) {
+      rawPayload.password = trimmedPassword;
     }
 
+    // Filter out empty values
+    const payload = Object.fromEntries(
+      Object.entries(rawPayload).filter(([_, v]) => v !== '')
+    );
+
+    if (profileImage) {
+      payload.image = {
+        uri: profileImage.path,
+        name: profileImage.filename || profileImage.path.split('/').pop(), // fallback to filename
+        type: profileImage.mime || 'image/jpeg',
+      };
+    }
+
+    if (Object.keys(payload).length === 0) {
+      Toast.show('Please fill at least one field to update.', Toast.LONG);
+      return;
+    }
+
+
+
+    dispatch(editProfileAction(payload, async (response) => {
+      setButtonLoading(false)
+      if (response?.data?.status) {
+        const updatedUserData = response?.data?.data;
+        console.log(`Success response: ${JSON.stringify(updatedUserData)}`);
+
+        try {
+          dispatch(setUserData(updatedUserData));
+          Toast.show('Profile updated successfully!', Toast.SHORT);
+          navigation.goBack(); // or navigate to a success screen
+        } catch (storageError) {
+          console.log('Failed to save updated user data:', storageError);
+          Toast.show('Update saved, but failed to store locally.', Toast.LONG);
+        }
+
+      } else {
+        Toast.show('Failed to update profile. Try again later.', Toast.SHORT);
+        console.log(`Failure response: ${JSON.stringify(response)}`);
+      }
+    }));
+
+
   };
+
+
 
   if (loading) {
     return (
@@ -187,12 +247,13 @@ const SelfProfile = () => {
 
         <View style={{ width: verticalScale(100), alignSelf: 'center' }}>
           <Image source={
-            profileImage
-              ? { uri: `${PROFILE_IMAGE_BASE_URL}${userData.image}` }
-              : userData?.image
-                ? { uri: `${PROFILE_IMAGE_BASE_URL}${userData.image}` }
+            profileImage?.path
+              ? { uri: profileImage.path }
+              : usersData?.image
+                ? { uri: `${PROFILE_IMAGE_BASE_URL}${usersData.image}` }
                 : IMAGES.DEFAULT_PROFILE
-          } style={{ height: verticalScale(100), width: verticalScale(100), borderRadius: verticalScale(100) / 2, alignSelf: 'center', marginTop: height * 0.01, marginBottom: height * 0.03, borderWidth: 2 }} resizeMode='cover' />
+          }
+            style={{ height: verticalScale(100), width: verticalScale(100), borderRadius: verticalScale(100) / 2, alignSelf: 'center', marginTop: height * 0.01, marginBottom: height * 0.03, borderWidth: 2 }} resizeMode='cover' />
           <View style={{ position: 'absolute', right: 12, top: verticalScale(82) }}>
             <TouchableOpacity onPress={openGallery} activeOpacity={0.7} style={{ backgroundColor: COLORS.white, borderRadius: 100 }}>
               <Icon type='AntDesign' name={'plus'} color={COLORS.black} size={22} />
@@ -222,8 +283,12 @@ const SelfProfile = () => {
         <TextInputComp value={postalCode} onChangeText={setPostalCode} placeholder={'Postal Code'} label={'Postal Code'} style={{ marginTop: verticalScale(12) }} />
         <TextInputComp value={password} onChangeText={setPassword} secureTextEntry={true} showPasswordToggle={true} placeholder={'Enter your password'} label={'Password'} style={{ marginTop: verticalScale(12) }} />
         <TextInputComp value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry={true} showPasswordToggle={true} placeholder={'Confirm Password'} label={'Confirm Password'} style={{ marginTop: verticalScale(12) }} />
-
-        <ButtonComp onPress={handleSave} title={'Save'} buttonStyle={{ marginTop: verticalScale(40), backgroundColor: COLORS.secondaryAppColor }} textStyle={{ color: COLORS.white }} />
+        {
+          error && (
+            <TextComp style={{ color: COLORS.red, fontSize: scale(10) }}>{`Both password should match`}</TextComp>
+          )
+        }
+        <ButtonComp onPress={handleSave} loading={buttonLoading} title={'Save'} buttonStyle={{ marginTop: verticalScale(40), backgroundColor: COLORS.secondaryAppColor }} textStyle={{ color: COLORS.white }} />
         {/* {keyboardVisible && ( */}
         <View style={{ height: verticalScale(50) }} />
 

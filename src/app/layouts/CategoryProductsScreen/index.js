@@ -14,6 +14,7 @@ import { useDispatch } from 'react-redux'
 import { getProductsByCategoryAction } from '../../../redux/action'
 import Toast from "react-native-simple-toast";
 import { IMAGES } from '../../../res/images'
+import { SCREEN } from '..'
 
 
 const CategoryProductsScreen = () => {
@@ -49,8 +50,14 @@ const CategoryProductsScreen = () => {
     fetchProducts()
   }, [])
 
+  const navigateToSingleProductScreen = (item) => {
+    navigation.navigate(SCREEN.SINGLE_PRODUCT_SCREEN, { data: item })
+    // console.log('dta----------?????',item);
+    
+  }
+
   const renderProductItem = ({ item }) => (
-    <View style={{ width: width, alignSelf: 'center' }}>
+    <TouchableOpacity onPress={()=>{navigateToSingleProductScreen(item)}} style={{ width: width, alignSelf: 'center' }}>
       <View
         style={{
           flexDirection: 'row',
@@ -106,7 +113,7 @@ const CategoryProductsScreen = () => {
           </View>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
   return (
     <Wrapper useTopInsets={true} useBottomInset={true} childrenStyles={{ width: width }} safeAreaContainerStyle={{ flex: 1 }}>
@@ -123,7 +130,7 @@ const CategoryProductsScreen = () => {
           data={products}
           ListEmptyComponent={() => (
             <View style={{ flex: 1, height: height * 0.8, justifyContent: 'center', alignItems: 'center' }}>
-              <Image source={IMAGES.NO_PRODUCT} style={{height:verticalScale(100),width:verticalScale(100)}}/>
+              <Image source={IMAGES.NO_PRODUCT} style={{ height: verticalScale(100), width: verticalScale(100) }} />
               <TextComp style={{ fontSize: scale(14), color: COLORS.grey }}>
                 No products found in this category.
               </TextComp>

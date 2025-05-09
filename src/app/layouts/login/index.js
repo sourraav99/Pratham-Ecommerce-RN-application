@@ -18,6 +18,7 @@ import Toast from 'react-native-simple-toast';
 import { useDispatch } from 'react-redux'
 import { loginUser } from '../../../redux/slices/authSlice'
 import { loginAction } from '../../../redux/action'
+import { setUserData } from '../../../redux/slices/userDataSlice'
 
 const Login = () => {
     const dispatch = useDispatch()
@@ -56,10 +57,10 @@ const Login = () => {
             loginAction(payload, (response) => {
                 setLoading(false)
                 if (response?.data?.status) {
-                    console.log(`token----->>>`, response?.data?.data?.auth_token);
+                    // console.log(`token----->>>`, response?.data?.data?.auth_token);
 
                     storeToken(response?.data?.data?.auth_token)
-
+                    dispatch(setUserData(response?.data?.data)); // update redux
                     AsyncStorage.setItem('userData', JSON.stringify(response?.data?.data));
                     dispatch(loginUser()); // this will update redux
                     Toast.show(response?.data?.message || 'login successfull', Toast.SHORT);

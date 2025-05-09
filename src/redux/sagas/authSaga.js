@@ -1,5 +1,5 @@
 import { call, put, takeLatest } from "redux-saga/effects";
-import { GET_BANNERS_ACTION, GET_CATEGORIES_ACTION, GET_PRODUCTS, GET_PRODUCTS_BY_CATEGORY, GET_SEARCH, LOGIN_ACTION, REQUEST_FORGET_PASSWORD_ACTION, RESET_PASSWORD_ACTION, SET_CATEGORIES, SIGNUP_ACTION, VERIFY_EMAIL_ACTION, VERIFY_FORGET_PASSWORD_OTP_ACTION, } from "../action/types";
+import { EDIT_PROFILE, GET_BANNERS_ACTION, GET_CATEGORIES_ACTION, GET_PRODUCTS, GET_PRODUCTS_BY_CATEGORY, GET_SEARCH, LOGIN_ACTION, REQUEST_FORGET_PASSWORD_ACTION, RESET_PASSWORD_ACTION, SET_CATEGORIES, SIGNUP_ACTION, VERIFY_EMAIL_ACTION, VERIFY_FORGET_PASSWORD_OTP_ACTION, } from "../action/types";
 import axios from "../../utils/axiosConfig";
 import { BASE_URL, END_POINTS } from "../../utils/config";
 
@@ -203,6 +203,31 @@ function* getProductsSaga(action) {
 }
 
 
+
+function* editProfile(payload) {
+    let formData = new FormData()
+    Object.keys(payload).forEach(element => {
+        formData.append(element, payload[element])
+    });
+    return yield call(axios.post, `${BASE_URL}${END_POINTS.EDIT_PROFILE_DATA}`, formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
+}
+function* editProfileSaga(action) {
+    try {
+        // console.log('action--->>>>', action);
+        const response = yield call(editProfile, action.payload)
+        // console.log('response=======>>>>>>>+++++', response?.data);
+        action.callBack(response)
+    } catch (error) {
+        console.log('edit profile API Error:', error?.message || error); // safer logging
+        action.callBack(error);
+    }
+}
+
+
 function* getSearch(payload) {
     console.log(`payload --->>>`, payload);
 
@@ -238,5 +263,6 @@ export function* authSaga() {
     yield takeLatest(GET_PRODUCTS_BY_CATEGORY, getProductsByCategorySaga);
     yield takeLatest(GET_PRODUCTS, getProductsSaga);
     yield takeLatest(GET_SEARCH, getSearchSaga);
+    yield takeLatest(EDIT_PROFILE, editProfileSaga);
 }
 export default authSaga;

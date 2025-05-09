@@ -10,37 +10,21 @@ import { useNavigation } from '@react-navigation/native';
 import { SCREEN } from '../layouts';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { PROFILE_IMAGE_BASE_URL } from '../../utils/config';
+import { useSelector } from 'react-redux';
 
 const StaticeHeader = ({ headerLabel, showFilterIcon = true }) => {
     const navigation = useNavigation()
     const [profileImage, setProfileImage] = useState(null);
     const imageUri = 'https://i.pinimg.com/736x/e8/e6/41/e8e64141f4c0ae39c32f9701ccea9a2e.jpg'
-
+    const usersData = useSelector((state) => state.userData.userData);
 
     useEffect(() => {
-        const getProfileImage = async () => {
-            try {
-                const userData = await AsyncStorage.getItem('userData');
-                if (userData) {
-                    const parsed = JSON.parse(userData);
-                    const imageId = parsed?.image;
-
-                    if (typeof imageId === 'string' && imageId.length > 0) {
-                        setProfileImage(`${PROFILE_IMAGE_BASE_URL}${encodeURIComponent(imageId)}`);
-                    } else {
-                        setProfileImage(null);
-                    }
-                } else {
-                    setProfileImage(null);
-                }
-            } catch (error) {
-                console.log('Error fetching image from AsyncStorage', error);
-                setProfileImage(null);
-            }
-        };
-
-        getProfileImage();
-    }, []);
+        if (usersData?.image) {
+            setProfileImage(`${PROFILE_IMAGE_BASE_URL}${encodeURIComponent(usersData.image)}`);
+        } else {
+            setProfileImage(null);
+        }
+    }, [usersData]);
 
     // console.log('profileImage typeof --->', typeof profileImage, profileImage);
     return (

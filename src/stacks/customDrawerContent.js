@@ -11,7 +11,7 @@ import { SCREEN } from '../app/layouts';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { logoutUser } from '../redux/slices/authSlice';
 import Toast from "react-native-simple-toast";
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { IMAGES } from '../res/images';
 import { PROFILE_IMAGE_BASE_URL } from '../utils/config';
 
@@ -34,31 +34,42 @@ const drawerItems = [
 const CustomDrawerContent = (props) => {
     const navigation = useNavigation();
     const dispatch = useDispatch()
-    const [userData, setUserData] = useState({
-        image: null,
-        businessName: '',
-        phone: '',
-        customerId: '',
-    });
-    useEffect(() => {
-        const fetchUserData = async () => {
-            try {
-                const storedData = await AsyncStorage.getItem('userData');
-                if (storedData) {
-                    const parsed = JSON.parse(storedData);
-                    setUserData({
-                        image: parsed?.image || null,
-                        businessName: parsed?.business_name || 'Business Name',
-                        phone: parsed?.phone || '+91 9876543210',
-                        customerId: parsed?.customerId || '123456',
-                    });
-                }
-            } catch (error) {
-                console.error('Error fetching user data:', error);
-            }
-        };
-        fetchUserData();
-    }, []);
+   const usersData = useSelector((state) => state.userData.userData);
+    // const [userData, setUserData] = useState({
+    //     image: null,
+    //     businessName: '',
+    //     phone: '',
+    //     customerId: '',
+    // });
+
+
+    const userData = {
+        image: usersData?.image || null,
+        businessName: usersData?.business_name || 'Business Name',
+        phone: usersData?.mobile_number || '+91 9876543210',
+        customerId: usersData?.id || '123456',
+      };
+    // useEffect(() => {
+    //     const fetchUserData = async () => {
+    //         try {
+    //             // const storedData = await AsyncStorage.getItem('userData');
+    //             // if (storedData) {
+    //             //     const parsed = JSON.parse(storedData);
+    //                 setUserData({
+    //                     image: usersData?.image || null,
+    //                     businessName: usersData?.business_name || 'Business Name',
+    //                     phone: usersData?.mobile_number || '+91 9876543210',
+    //                     customerId: usersData?.id || '123456',
+    //                 });
+    //                 console.log(`userData=========>>>>>>>>>>>`,userData);
+                    
+    //             // }
+    //         } catch (error) {
+    //             console.error('Error fetching user data:', error);
+    //         }
+    //     };
+    //     fetchUserData();
+    // }, []);
     const handleLogout = async () => {
         try {
             await AsyncStorage.clear(); // clear storage
