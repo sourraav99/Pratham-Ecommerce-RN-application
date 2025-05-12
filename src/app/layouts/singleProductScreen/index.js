@@ -150,7 +150,7 @@ const SingleProductScreen = () => {
 
 
     return (
-        <Wrapper childrenStyles={{ backgroundColor: 'white', flex: 1, width: width }}>
+        <Wrapper childrenStyles={{ backgroundColor: COLORS.white, flex: 1, width: width }}>
             {/* Header */}
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
