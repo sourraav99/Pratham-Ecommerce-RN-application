@@ -37,6 +37,7 @@ const Signup = () => {
   const [postalCode, setPostalCode] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
     const show = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true));
@@ -52,23 +53,26 @@ const Signup = () => {
   const handleBack = () => {
     navigation.goBack()
   }
+
+  const payload = {
+    first_name: firstName.trim(),
+    last_name: lastName.trim(),
+    email: email.trim(),
+    mobile_number: Number(mobileNumber.trim()),
+    business_name: businessName.trim(),
+    business_type: businessType.trim(),
+    gst_number: gstNumber.trim(),
+    business_address: businessAddress.trim(),
+    city: city.trim(),
+    state: state.trim(),
+    postal_code: Number(postalCode.trim()),
+    password: password.trim(),
+    confirmPassword: confirmPassword.trim(),
+  };
+
   const handleRegister = () => {
     // Trim values
-    const payload = {
-      first_name: firstName.trim(),
-      last_name: lastName.trim(),
-      email: email.trim(),
-      mobile_number: Number(mobileNumber.trim()),
-      business_name: businessName.trim(),
-      business_type: businessType.trim(),
-      gst_number: gstNumber.trim(),
-      business_address: businessAddress.trim(),
-      city: city.trim(),
-      state: state.trim(),
-      postal_code: Number(postalCode.trim()),
-      password: password.trim(),
-      confirmPassword: confirmPassword.trim(),  
-    };
+
 
     // Validate fields
     for (const [key, value] of Object.entries(payload)) {
@@ -96,12 +100,12 @@ const Signup = () => {
       signupAction(payload, (response) => {
         setLoading(false)
         if (response?.data?.status) {
-          console.log(`sucessful-------->>>`, response?.data);
-
-          navigation.navigate(SCREEN.VERIFY_OTP, {
-            email: payload.email,
-            comingFrom: SCREEN.SIGNUP,
-          });
+          // console.log(`sucessful-------->>>`, response?.data);
+          setModalVisible(true)
+          // navigation.navigate(SCREEN.VERIFY_OTP, {
+          //   email: payload.email,
+          //   comingFrom: SCREEN.SIGNUP,
+          // });
           Toast.show(response?.data?.message || 'registration successfull! Please verify', Toast.SHORT);
           // console.log(`userdata---------->>>>>`,response?.data?.data);
         } else {
@@ -113,6 +117,17 @@ const Signup = () => {
     )
 
   };
+
+
+
+  const handleOkPress = () => {
+    setModalVisible(false)
+    navigation.navigate(SCREEN.VERIFY_OTP, {
+      email: payload.email,
+      comingFrom: SCREEN.SIGNUP,
+    });
+  }
+
   return (
     <Wrapper useBottomInset={true} useTopInsets={true} safeAreaContainerStyle={{}} childrenStyles={{ height: isIOS() ? height * 0.9 : height }}>
       <View style={{ height: verticalScale(50), width: width, alignSelf: 'center', justifyContent: 'center', paddingLeft: moderateScale(15) }}>
@@ -139,7 +154,7 @@ const Signup = () => {
             placeholder={'John'} label={'First Name'} />
           <View style={{ width: moderateScale(8) }} />
           <TextInputComp
-            value={lastName}  
+            value={lastName}
             onChangeText={setLastName}
             placeholder={'Doe'} label={'Last Name'} style={{ flex: 0.95 }} />
         </View>
@@ -189,7 +204,33 @@ const Signup = () => {
         <View style={{ height: verticalScale(50) }} />
 
         {/* )} */}
+
       </KeyboardAwareScrollView>
+      {modalVisible && (
+        <View
+          style={{
+            position: 'absolute',
+            height: height,
+            width: width,
+            backgroundColor: 'rgba(0,0,0,0.4)',
+            justifyContent: 'center',
+            paddingHorizontal: scale(20),
+            alignSelf: 'center'
+          }}
+        >
+          <View
+            style={{
+              backgroundColor: COLORS.white,
+              borderRadius: scale(10),
+              padding: scale(15),
+              maxHeight: height * 0.75,
+            }}
+          >
+            <TextComp style={{ textAlign: 'center', fontSize: scale(18), marginBottom: verticalScale(20) }}>{`Your busssines has been registered successfully. Please wait for your profile verification`}</TextComp>
+            <ButtonComp onPress={() => { handleOkPress }} title={`OK`} textStyle={{ fontSize: scale(20), color: COLORS.white }} />
+          </View>
+        </View>
+      )}
     </Wrapper>
   )
 }

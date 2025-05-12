@@ -172,22 +172,25 @@ const Home = () => {
 
     return (
 
-      <TouchableOpacity onPress={() => { navigateToSingleProductScreen(item) }} style={{ width: width, alignSelf: 'center' }}>
+      <TouchableOpacity onPress={() => { navigateToSingleProductScreen(item) }} style={{ width: width, alignSelf: 'center', }}>
         <View
           style={{
             flexDirection: 'row',
             borderTopWidth: 1,
             borderTopColor: COLORS.greyOpacity(1),
             overflow: 'hidden',
+            // alignItems:'center'
+            paddingVertical: verticalScale(5)
           }}
         >
           <Image
             source={{ uri: item.display_image }}
             style={{
               width: width * 0.92 * 0.4,
-              height: verticalScale(120),
+              // height: verticalScale(120),
+              // backgroundColor:'red'
             }}
-            resizeMode="cover"
+            resizeMode="contain"
           />
           <View
             style={{
@@ -217,20 +220,34 @@ const Home = () => {
                     <TextComp style={{ fontSize: scale(10), color: COLORS.white, }}>Add to cart</TextComp>
                   </TouchableOpacity>
                 </View>
-                <View style={{ flexDirection: 'row' }}>
-                  {/* <TextComp style={{ fontSize: scale(12), color: COLORS.secondaryAppColor }}>{`Size:${item.mainSize.value}${item.mainSize.unit}`}
-                  </TextComp> */}
-                  <TextComp style={{ fontSize: scale(12), color: COLORS.secondaryAppColor }}>{`Size:9mm`}
-                  </TextComp>
-                  <TextComp onPress={() => {
-                    setSelectedProduct(item);
-                    setShowVariantModal(true);
-                  }} style={{ marginLeft: scale(6), fontSize: scale(12), color: COLORS.blue, fontWeight: '800' }}>{`More`}</TextComp>
-                </View>
+                {item.variants && item.variants.length > 0 ? (
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <TextComp style={{ fontSize: scale(12), color: COLORS.secondaryAppColor }}>
+                      {`Size: ${item.variants[0]?.size || 'N/A'}`}
+                    </TextComp>
+                    <TextComp
+                      onPress={() => {
+                        setSelectedProduct(item);
+                        setShowVariantModal(true);
+                      }}
+                      style={{ marginLeft: scale(6), fontSize: scale(12), color: COLORS.blue, fontWeight: '800' }}
+                    >
+                      More
+                    </TextComp>
+                  </View>
+                ) : (
+                  <>
+                  <View style={{height:10,width:60,}}/>
+                    </>
+                  // <TextComp style={{ fontSize: scale(12), color: COLORS.secondaryAppColor }}>
+                  //   No variants
+                  // </TextComp>
+                )}
+
                 {/* <TextComp style={{ fontSize: scale(12), color: COLORS.secondaryAppColor }}>{`Unit:${item.mainSize.unit}`}
                 </TextComp> */}
-                <TextComp style={{ fontSize: scale(12), color: COLORS.secondaryAppColor }}>{`Unit:L`}
-                </TextComp>
+                {/* <TextComp style={{ fontSize: scale(12), color: COLORS.secondaryAppColor }}>{`Unit:L`}
+                </TextComp> */}
               </View>
               <TouchableOpacity onPress={() => toggleLike(item)} style={{ marginRight: moderateScale(10), marginTop: verticalScale(10) }}>
                 <Icon type="AntDesign" name="heart" size={scale(22)} color={isLiked ? COLORS.red : COLORS.secondaryAppColor} />

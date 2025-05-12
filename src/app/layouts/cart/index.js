@@ -193,7 +193,7 @@ const Cart = () => {
 
   }
   return (
-    <Wrapper childrenStyles={{ backgroundColor: 'white', flex: 1, width: width }}>
+    <Wrapper useBottomInset={false} childrenStyles={{ backgroundColor: 'white', flex: 1, width: width }}>
       <View style={{ height: verticalScale(50), width: width, alignSelf: 'center', paddingLeft: moderateScale(15), flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: 0.5, borderColor: COLORS.greyOpacity(0.5) }}>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           {/* <TouchableOpacity hitSlop={{ left: 30 }} style={{ backgroundColor: COLORS.secondaryAppColor, height: verticalScale(30), width: verticalScale(30), borderRadius: 100, alignItems: 'center', justifyContent: 'center' }}>
@@ -217,8 +217,8 @@ const Cart = () => {
 
         contentContainerStyle={{ paddingBottom: verticalScale(110) }}
       />
-     <View style={{    position: 'absolute', bottom: -1,
-        elevation: 15,
+     <View style={{    position: 'absolute', bottom:0,
+        // elevation: 15,
 
      }}>
      <View style={{
@@ -237,10 +237,10 @@ const Cart = () => {
         alignItems: 'center',
         justifyContent: 'space-between',
         // elevation: 15,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: -2 },
-        shadowOpacity: 0.1,
-        shadowRadius: scale(4),
+        // shadowColor: '#000',
+        // shadowOffset: { width: 0, height: -2 },
+        // shadowOpacity: 0.1,
+        // shadowRadius: scale(4),
       }}>
         <TextComp style={{ color: '#155724', fontWeight: 'bold', fontSize: scale(14) }}>
           You saved ₹2500 on this order!
@@ -265,12 +265,10 @@ export default Cart
 const styles = StyleSheet.create({
   bottomBar: {
 
-    bottom: 0,
+    // bottom: 0,
     left: 0,
     right: 0,
     backgroundColor: COLORS.secondaryAppColor,
-    // borderTopWidth: 0.5,
-    // borderColor: '#ccc',
     paddingHorizontal: 15,
     paddingVertical: 10,
     flexDirection: 'row',

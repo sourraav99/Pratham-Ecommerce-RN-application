@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, Image, ScrollView, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import React, { useRef, useState } from 'react';
+import { View, Text, Image, ScrollView, StyleSheet, TouchableOpacity, Dimensions, Animated } from 'react-native';
 import { moderateScale, scale, verticalScale } from 'react-native-size-matters';
 import { WebView } from 'react-native-webview';
 import Wrapper from '../../components/wrapper';
@@ -12,6 +12,9 @@ import { IMAGES } from '../../../res/images';
 import { useSelector } from 'react-redux';
 
 const { width } = Dimensions.get('window');
+
+
+const STICKY_HEIGHT = 80 + 80; // 80 shrunk media + 80 for thumbnails
 
 const product = {
     product_name: "Angle Grinder GWS 600",
@@ -51,55 +54,54 @@ const SingleProductScreen = () => {
     ];
 
     const [selectedMedia, setSelectedMedia] = useState(mediaItems[0] || null);
+    const scrollY = useRef(new Animated.Value(0)).current;
+    const mediaHeight = scrollY.interpolate({
+        inputRange: [0, 150],
+        outputRange: [250, 80],
+        extrapolate: 'clamp',
+    });
 
 
-    const renderSelectedMedia = () => {
-        if (!selectedMedia) return null;
-
-        if (selectedMedia.type === 'image') {
-            return (
+    const renderStickyMedia = () => (
+        <Animated.View
+            style={[
+                styles.stickyMediaContainer,
+                {
+                    height: mediaHeight,
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    backgroundColor: '#fff', // to prevent transparency glitch
+                    zIndex: 99,
+                    overflow: 'visible',
+                }
+            ]}
+        >
+            {selectedMedia?.type === 'image' ? (
                 <Image
                     source={{ uri: selectedMedia.uri }}
-                    style={styles.mainMedia}
+                    style={styles.stickyMedia}
                     resizeMode="contain"
                 />
-            );
-        } else {
-            return (
-                <View style={styles.mainMedia}>
+            ) : (
+                <View style={styles.stickyMedia}
+                >
                     <WebView
                         source={{ uri: selectedMedia.uri }}
-                        style={{ flex: 1 }}
+                        style={styles.stickyMedia}
                         javaScriptEnabled
                         domStorageEnabled
                     />
                 </View>
-            );
-        }
-    };
-
-
-    return (
-        <Wrapper childrenStyles={{ backgroundColor: 'white', flex: 1, width: width }}>
-            {/* Header */}
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                    <Icon name={'arrowleft'} color={COLORS.white} size={scale(22)} type='AntDesign' />
-                </TouchableOpacity>
-                <View style={styles.headerIcons}>
-                    <TouchableOpacity style={{ padding: 15 }}>
-                        <Icon type='Entypo' name='share' color={COLORS.secondaryAppColor} size={22} />
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={()=>{console.log(`dtaa=====>>>>${cartItems}`);
-                    }} style={{ padding: 15 }}>
-                        <Icon type='FontAwesome' name='heart'  color={isInCart ? COLORS.red: COLORS.secondaryAppColor} size={22} />
-                    </TouchableOpacity>
-                </View>
-            </View>
-
-            <ScrollView showsVerticalScrollIndicator={false} style={styles.container}>
-                {renderSelectedMedia()}
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.thumbnailRow}>
+            )}
+            <View style={{ backgroundColor: COLORS.red }}>
+                <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={{ paddingHorizontal: 10 }}
+                    style={{ paddingVertical: 10 }}
+                >
                     {mediaItems.map((item, index) => (
                         <TouchableOpacity
                             key={index}
@@ -116,39 +118,123 @@ const SingleProductScreen = () => {
                         </TouchableOpacity>
                     ))}
                 </ScrollView>
+            </View>
 
-                {/* Product Info */}
-                <View style={styles.infoContainer}>
-                    <TextComp style={styles.title}>{data.product_name}</TextComp>
-                  <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}>
-                  <View>
-                        <TextComp style={styles.price}>₹{data.price} <TextComp style={{
-                            fontSize: scale(14),
-                            marginLeft: 8
-                        }}
-                        >Incl GST</TextComp></TextComp>
-                        {/* <TextComp style={styles.meta}>Size: {data.size} | Unit: {data.unit}</TextComp> */}
-                        <TextComp style={{ fontSize: scale(14) }}>MRP: <TextComp style={styles.mrp}>₹{data.mrp}</TextComp></TextComp>
-                    </View>
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <Image source={IMAGES.WARRENTY} style={{ height: verticalScale(40), width: verticalScale(40),marginRight:moderateScale(5) }} resizeMode='contain' />
-                        <View style={{ backgroundColor: `#ccc`, paddingHorizontal: verticalScale(8), paddingVertical: verticalScale(3), borderRadius: 5 }}>
-                            <TextComp>{data.hsn_code||''}</TextComp>
+        </Animated.View>
+    );
+
+
+    // const renderSelectedMedia = () => {
+    //     if (!selectedMedia) return null;
+
+    //     return (
+    //         <Animated.View style={[styles.mainMedia, { height: mediaHeight }]}>
+    //             {selectedMedia?.type === 'image' ? (
+    //                 <Image
+    //                     source={{ uri: selectedMedia.uri }}
+    //                     style={{ width: '100%', height: '100%' }}
+    //                     resizeMode="contain"
+    //                 />
+    //             ) : (
+    //                 <WebView
+    //                     source={{ uri: selectedMedia.uri }}
+    //                     style={{ flex: 1 }}
+    //                     javaScriptEnabled
+    //                     domStorageEnabled
+    //                 />
+    //             )}
+    //         </Animated.View>
+
+    //     )
+    // };
+
+
+    return (
+        <Wrapper childrenStyles={{ backgroundColor: 'white', flex: 1, width: width }}>
+            {/* Header */}
+            <View style={styles.header}>
+                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                    <Icon name={'arrowleft'} color={COLORS.white} size={scale(22)} type='AntDesign' />
+                </TouchableOpacity>
+                <View style={styles.headerIcons}>
+                    <TouchableOpacity style={{ padding: 15 }}>
+                        <Icon type='Entypo' name='share' color={COLORS.secondaryAppColor} size={22} />
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => {
+                        console.log(`dtaa=====>>>>${cartItems}`);
+                    }} style={{ padding: 15 }}>
+                        <Icon type='FontAwesome' name='heart' color={isInCart ? COLORS.red : COLORS.secondaryAppColor} size={22} />
+                    </TouchableOpacity>
+                </View>
+            </View>
+
+            <View style={{ flex: 1 }}>
+                {renderStickyMedia()}
+                <Animated.ScrollView
+                    showsVerticalScrollIndicator={false}
+                    style={styles.container}
+                    scrollEventThrottle={16}
+                    onScroll={Animated.event(
+                        [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+                        { useNativeDriver: false }
+                    )}
+                >
+
+                    {/* <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.thumbnailRow}>
+                    {mediaItems.map((item, index) => (
+                        <TouchableOpacity
+                            key={index}
+                            onPress={() => setSelectedMedia(item)}
+                            style={[styles.thumbnailWrapper, selectedMedia.uri === item.uri && styles.activeThumbnail]}
+                        >
+                            {item.type === 'image' ? (
+                                <Image source={{ uri: item.uri }} style={styles.thumbnail} />
+                            ) : (
+                                <View style={styles.videoThumb}>
+                                    <Icon type="Entypo" name="video" color="white" size={20} />
+                                </View>
+                            )}
+                        </TouchableOpacity>
+                    ))}
+                </ScrollView> */}
+
+                    {/* Product Info */}
+                    <View style={styles.infoContainer}>
+                        <TextComp style={styles.title}>{data.product_name}</TextComp>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <View>
+                                <TextComp style={styles.price}>₹{data.price} <TextComp style={{
+                                    fontSize: scale(14),
+                                    marginLeft: 8
+                                }}
+                                >Incl GST</TextComp></TextComp>
+                                {/* <TextComp style={styles.meta}>Size: {data.size} | Unit: {data.unit}</TextComp> */}
+                                <TextComp style={{ fontSize: scale(14) }}>MRP: <TextComp style={styles.mrp}>₹{data.mrp}</TextComp></TextComp>
+                            </View>
+                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                <Image source={IMAGES.WARRENTY} style={{ height: verticalScale(40), width: verticalScale(40), marginRight: moderateScale(5) }} resizeMode='contain' />
+                                <View style={{ backgroundColor: `#ccc`, paddingHorizontal: verticalScale(8), paddingVertical: verticalScale(3), borderRadius: 5 }}>
+                                    <TextComp>{data.hsn_code || ''}</TextComp>
+                                </View>
+                            </View>
                         </View>
                     </View>
-                  </View>
-                </View>
-                {/* ₹{data.mrp} */}
-                {/* Description */}
-                <View style={styles.descriptionContainer}>
-                    <TextComp style={styles.sectionTitle}>Description</TextComp>
+                    {/* ₹{data.mrp} */}
+                    {/* Description */}
+                    <View style={styles.descriptionContainer}>
+                        <TextComp style={styles.sectionTitle}>Description</TextComp>
 
-                    {data?.description && (
-                        <RenderHtml source={{ html: data.description }} contentWidth={width} />
-                    )}
-                    {/* <TextComp>{stripHtml(product.description)}</TextComp> */}
-                </View>
-            </ScrollView>
+                        {data?.description && (
+                            <RenderHtml source={{ html: data.description }} contentWidth={width} />
+                        )}
+                        {/* <TextComp>{stripHtml(product.description)}</TextComp> */}
+                    </View>
+                    <TextComp>
+                        Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum
+                        Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum
+                    </TextComp>
+                </Animated.ScrollView>
+            </View>
             <View style={styles.bottomBar}>
                 <TextComp style={styles.bottomPrice}>₹{data.price}</TextComp>
                 <TouchableOpacity style={styles.addToCartBtn}>
@@ -159,7 +245,6 @@ const SingleProductScreen = () => {
     );
 };
 
-const stripHtml = (html) => html.replace(/<[^>]*>?/gm, '');
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#fff' },
@@ -190,9 +275,11 @@ const styles = StyleSheet.create({
         backgroundColor: COLORS.white,
     },
     thumbnailRow: {
+        height: scale(80),
         paddingVertical: 10,
-        paddingHorizontal: 10,
-        width: width * 0.97
+        paddingLeft: 10,
+        backgroundColor: COLORS.white,
+        flexDirection: 'row'
     },
     thumbnailWrapper: {
         marginRight: 10,
@@ -218,7 +305,7 @@ const styles = StyleSheet.create({
     },
     infoContainer: {
         paddingHorizontal: 20,
-        marginTop: 10,
+        marginTop: 350,
         // backgroundColor: 'red'
     },
     title: {
@@ -285,6 +372,22 @@ const styles = StyleSheet.create({
         color: COLORS.secondaryAppColor,
         fontWeight: 'bold',
     },
+    stickyMediaContainer: {
+        position: 'absolute',
+        top: verticalScale(50), // just below your custom header
+        left: 0,
+        right: 0,
+        backgroundColor: '#fff',
+        zIndex: 10,
+        borderBottomWidth: 1,
+        borderColor: COLORS.greyOpacity(0.3),
+    },
+    stickyMedia: {
+        width: '100%',
+        height: '100%',
+        backgroundColor: COLORS.white,
+    },
+
 
 });
 
