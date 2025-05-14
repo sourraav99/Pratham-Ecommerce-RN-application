@@ -144,7 +144,7 @@ const Favourites = () => {
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', }}>
             <View style={{ flex: 1, paddingLeft: moderateScale(5) }}>
               <TextComp style={{ fontSize: scale(12), marginTop: scale(3), color: COLORS.secondaryAppColor }}>
-                {item.brand.name}
+                {item?.brand?.name}
               </TextComp>
               {/* <TextComp style={{ fontSize: scale(12), marginTop: scale(3), color: COLORS.secondaryAppColor }}>
                 Pioneer
@@ -214,7 +214,7 @@ const Favourites = () => {
       {/* <Button title='get favourites' onPress={logs} /> */}
       <FlatList
         data={favorites || []}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => item.id}
         renderItem={renderProductItem}
         ListEmptyComponent={() => (
           <TextComp style={{ textAlign: 'center', marginTop: 20 }}>

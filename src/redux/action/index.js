@@ -44,3 +44,7 @@ export const getSearchAction = (payload, callBack) => ({
 export const editProfileAction = (payload, callBack) => ({
     type: TYPES['EDIT_PROFILE'], payload, callBack
 })
+export const getBannerProductsAction = (payload, callBack) => ({
+    type: TYPES['GET_BANNER_PRODUCTS'], payload, callBack
+})
+

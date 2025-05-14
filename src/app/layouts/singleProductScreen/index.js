@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { View, Text, Image, ScrollView, StyleSheet, TouchableOpacity, Dimensions, Animated } from 'react-native';
+import { View, Text, Image, ScrollView, StyleSheet, TouchableOpacity, Dimensions, Animated, Share } from 'react-native';
 import { moderateScale, scale, verticalScale } from 'react-native-size-matters';
 import { WebView } from 'react-native-webview';
 import Wrapper from '../../components/wrapper';
@@ -9,12 +9,16 @@ import Icon from '../../../utils/icon';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import RenderHtml from 'react-native-render-html';
 import { IMAGES } from '../../../res/images';
-import { useSelector } from 'react-redux';
+import Toast from "react-native-simple-toast";
+import { useDispatch, useSelector } from 'react-redux';
+import { addToFavourites, removeFromFavourites } from '../../../redux/slices/favouritesSlice';
 
 const { width } = Dimensions.get('window');
 
 
 const STICKY_HEIGHT = 80 + 80; // 80 shrunk media + 80 for thumbnails
+
+
 
 const product = {
     product_name: "Angle Grinder GWS 600",
@@ -42,11 +46,34 @@ const source = {
 const SingleProductScreen = () => {
     const navigation = useNavigation()
     const route = useRoute();
+    const dispatch = useDispatch()
     const { data } = route?.params || {}
     console.log('data==============>>>>>', data.display_image);
-    const cartItems = useSelector(state => state.cart.items);
-    const isInCart = cartItems.some(item => item.id === data.id); // or match on another unique key
+    const favorites = useSelector(state => state.favorites.items);
+    const isLiked = favorites.some(fav => fav.id === data.id);
 
+    const toggleLike = () => {
+        const isAlreadyInFavorites = favorites.some(fav => fav.id === data.id);
+
+        if (isAlreadyInFavorites) {
+            dispatch(removeFromFavourites(data.id));
+            Toast.show('Item removed from favourites');
+        } else {
+            dispatch(addToFavourites(data));
+            Toast.show('Item added to favourites');
+        }
+    };
+
+
+    const handleShare = async () => {
+        try {
+            await Share.share({
+                message: `${data.product_name} - ₹${data.price}\nCheck it out: ${data.display_image}`,
+            });
+        } catch (error) {
+            console.log('Error sharing:', error.message);
+        }
+    };
     const mediaItems = [
         ...(data.display_image ? [{ type: 'image', uri: data.display_image }] : []),
         ...((data.more_images || []).map(uri => ({ type: 'image', uri }))),
@@ -95,33 +122,11 @@ const SingleProductScreen = () => {
                     />
                 </View>
             )}
-            <View style={{ backgroundColor: COLORS.red }}>
-                <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={{ paddingHorizontal: 10 }}
-                    style={{ paddingVertical: 10 }}
-                >
-                    {mediaItems.map((item, index) => (
-                        <TouchableOpacity
-                            key={index}
-                            onPress={() => setSelectedMedia(item)}
-                            style={[styles.thumbnailWrapper, selectedMedia.uri === item.uri && styles.activeThumbnail]}
-                        >
-                            {item.type === 'image' ? (
-                                <Image source={{ uri: item.uri }} style={styles.thumbnail} />
-                            ) : (
-                                <View style={styles.videoThumb}>
-                                    <Icon type="Entypo" name="video" color="white" size={20} />
-                                </View>
-                            )}
-                        </TouchableOpacity>
-                    ))}
-                </ScrollView>
-            </View>
 
         </Animated.View>
     );
+
+
 
 
     // const renderSelectedMedia = () => {
@@ -157,18 +162,16 @@ const SingleProductScreen = () => {
                     <Icon name={'arrowleft'} color={COLORS.white} size={scale(22)} type='AntDesign' />
                 </TouchableOpacity>
                 <View style={styles.headerIcons}>
-                    <TouchableOpacity style={{ padding: 15 }}>
+                    <TouchableOpacity onPress={handleShare} style={{ padding: 15 }}>
                         <Icon type='Entypo' name='share' color={COLORS.secondaryAppColor} size={22} />
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => {
-                        console.log(`dtaa=====>>>>${cartItems}`);
-                    }} style={{ padding: 15 }}>
-                        <Icon type='FontAwesome' name='heart' color={isInCart ? COLORS.red : COLORS.secondaryAppColor} size={22} />
+                    <TouchableOpacity onPress={() => toggleLike(data.id)} style={{ padding: 15 }}>
+                        <Icon type='FontAwesome' name='heart' color={isLiked ? COLORS.red : COLORS.secondaryAppColor} size={22} />
                     </TouchableOpacity>
                 </View>
             </View>
 
-            <View style={{ flex: 1 }}>
+            <View style={{ flex: 1, }}>
                 {renderStickyMedia()}
                 <Animated.ScrollView
                     showsVerticalScrollIndicator={false}
@@ -180,37 +183,57 @@ const SingleProductScreen = () => {
                     )}
                 >
 
-                    {/* <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.thumbnailRow}>
-                    {mediaItems.map((item, index) => (
-                        <TouchableOpacity
-                            key={index}
-                            onPress={() => setSelectedMedia(item)}
-                            style={[styles.thumbnailWrapper, selectedMedia.uri === item.uri && styles.activeThumbnail]}
-                        >
-                            {item.type === 'image' ? (
-                                <Image source={{ uri: item.uri }} style={styles.thumbnail} />
-                            ) : (
-                                <View style={styles.videoThumb}>
-                                    <Icon type="Entypo" name="video" color="white" size={20} />
-                                </View>
-                            )}
-                        </TouchableOpacity>
-                    ))}
-                </ScrollView> */}
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.thumbnailRow}>
+                        {mediaItems.map((item, index) => (
+                            <TouchableOpacity
+                                key={index}
+                                onPress={() => setSelectedMedia(item)}
+                                style={[styles.thumbnailWrapper, selectedMedia.uri === item.uri && styles.activeThumbnail]}
+                            >
+                                {item.type === 'image' ? (
+                                    <Image source={{ uri: item.uri }} style={styles.thumbnail} />
+                                ) : (
+                                    <View style={styles.videoThumb}>
+                                        <Icon type="Entypo" name="video" color="white" size={20} />
+                                    </View>
+                                )}
+                            </TouchableOpacity>
+                        ))}
+                    </ScrollView>
 
                     {/* Product Info */}
                     <View style={styles.infoContainer}>
                         <TextComp style={styles.title}>{data.product_name}</TextComp>
                         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                            <View>
-                                <TextComp style={styles.price}>₹{data.price} <TextComp style={{
+                            {/* <View>
+                                <TextComp style={styles.price}>₹{data.price || 100} <TextComp style={{
                                     fontSize: scale(14),
                                     marginLeft: 8
                                 }}
-                                >Incl GST</TextComp></TextComp>
-                                {/* <TextComp style={styles.meta}>Size: {data.size} | Unit: {data.unit}</TextComp> */}
-                                <TextComp style={{ fontSize: scale(14) }}>MRP: <TextComp style={styles.mrp}>₹{data.mrp}</TextComp></TextComp>
-                            </View>
+                                >Incl GST</TextComp></TextComp> */}
+                            {/* <TextComp style={styles.meta}>Size: {data.size} | Unit: {data.unit}</TextComp> */}
+                            {/* <TextComp style={{ fontSize: scale(14) }}>MRP: <TextComp style={styles.mrp}>₹{data.mrp || 200}</TextComp></TextComp>
+                            </View> */}
+
+
+                            {data.variants && data.variants.length > 0 ? (
+                                <TouchableOpacity style={{ backgroundColor: COLORS.secondaryAppColor, paddingVertical: verticalScale(5), paddingHorizontal: verticalScale(8), borderRadius: 6, marginTop: verticalScale(3) }}>
+                                    <TextComp style={{ color: COLORS.white }}>{`See all variants`}</TextComp>
+                                </TouchableOpacity>
+                            ) : (
+                                <>
+                                    <View>
+                                        <TextComp style={styles.price}>₹{data.price || 100} <TextComp style={{
+                                            fontSize: scale(14),
+                                            marginLeft: 8
+                                        }}
+                                        >Incl GST</TextComp></TextComp>
+                                        {/* <TextComp style={styles.meta}>Size: {data.size} | Unit: {data.unit}</TextComp> */}
+                                        <TextComp style={{ fontSize: scale(14) }}>MRP: <TextComp style={styles.mrp}>₹{data.mrp || 200}</TextComp></TextComp>
+                                    </View>
+                                </>
+                            )}
+
                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                 <Image source={IMAGES.WARRENTY} style={{ height: verticalScale(40), width: verticalScale(40), marginRight: moderateScale(5) }} resizeMode='contain' />
                                 <View style={{ backgroundColor: `#ccc`, paddingHorizontal: verticalScale(8), paddingVertical: verticalScale(3), borderRadius: 5 }}>
@@ -279,7 +302,8 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
         paddingLeft: 10,
         backgroundColor: COLORS.white,
-        flexDirection: 'row'
+        flexDirection: 'row',
+        marginTop: verticalScale(250)
     },
     thumbnailWrapper: {
         marginRight: 10,
@@ -305,9 +329,14 @@ const styles = StyleSheet.create({
     },
     infoContainer: {
         paddingHorizontal: 20,
-        marginTop: 350,
+        // marginTop: 200,
         // backgroundColor: 'red'
+
     },
+    // infoContainer: {
+    //     paddingHorizontal: 20,
+    //     marginTop: STICKY_HEIGHT, // Use consistent height value
+    //   },
     title: {
         fontSize: 18,
         fontWeight: 'bold',
@@ -374,13 +403,15 @@ const styles = StyleSheet.create({
     },
     stickyMediaContainer: {
         position: 'absolute',
-        top: verticalScale(50), // just below your custom header
+        // top: verticalScale(50), // just below your custom header
         left: 0,
         right: 0,
-        backgroundColor: '#fff',
+        // backgroundColor: '#fff',
         zIndex: 10,
         borderBottomWidth: 1,
         borderColor: COLORS.greyOpacity(0.3),
+        // elevation: 10,
+        // height:verticalScale(300)
     },
     stickyMedia: {
         width: '100%',

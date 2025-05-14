@@ -12,7 +12,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { PROFILE_IMAGE_BASE_URL } from '../../utils/config';
 import { useSelector } from 'react-redux';
 
-const StaticeHeader = ({ headerLabel, showFilterIcon = true }) => {
+const StaticeHeader = ({ headerLabel, showFilterIcon = true,onpressFilter }) => {
     const navigation = useNavigation()
     const [profileImage, setProfileImage] = useState(null);
     const imageUri = 'https://i.pinimg.com/736x/e8/e6/41/e8e64141f4c0ae39c32f9701ccea9a2e.jpg'
@@ -56,7 +56,7 @@ const StaticeHeader = ({ headerLabel, showFilterIcon = true }) => {
                     <Icon name={'search'} type='EvilIcons' size={20} color={COLORS.black} />
                 </TouchableOpacity>
                 {showFilterIcon && (
-                    <TouchableOpacity style={{ paddingHorizontal: 5 }}>
+                    <TouchableOpacity onPress={onpressFilter} style={{ paddingHorizontal: 5 }}>
                         <Icon name='filter' type='Ionicons' size={24} color={COLORS.black} />
                     </TouchableOpacity>
                 )}

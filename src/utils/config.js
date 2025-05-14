@@ -19,7 +19,8 @@ export const END_POINTS = {
     GET_PRODUCTS_BY_CATEGORY_API:`/api/get_products_by_category.php`,
     GET_PRODUCTS:`/api/get_products`,
     SEARCH:`/api/search.php`,
-    EDIT_PROFILE_DATA:`/api/edit_profile.php`
+    EDIT_PROFILE_DATA:`/api/edit_profile.php`,
+    GET_BANNER_PRODUCTS:`/api/get_banner_products.php`
     // FORGET_PASSWORD:`/auth/forget-password`,{{BASE_URL}}api/search.php?search=b
     // GET_ALL_VENUES:`/venue/active-venue/user`,
     // GET_ACTIVE_SPORTS: `/sport/active-sports`,

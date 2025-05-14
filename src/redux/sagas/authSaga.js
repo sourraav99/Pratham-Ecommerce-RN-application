@@ -1,5 +1,5 @@
 import { call, put, takeLatest } from "redux-saga/effects";
-import { EDIT_PROFILE, GET_BANNERS_ACTION, GET_CATEGORIES_ACTION, GET_PRODUCTS, GET_PRODUCTS_BY_CATEGORY, GET_SEARCH, LOGIN_ACTION, REQUEST_FORGET_PASSWORD_ACTION, RESET_PASSWORD_ACTION, SET_CATEGORIES, SIGNUP_ACTION, VERIFY_EMAIL_ACTION, VERIFY_FORGET_PASSWORD_OTP_ACTION, } from "../action/types";
+import { EDIT_PROFILE, GET_BANNER_PRODUCTS, GET_BANNERS_ACTION, GET_CATEGORIES_ACTION, GET_PRODUCTS, GET_PRODUCTS_BY_CATEGORY, GET_SEARCH, LOGIN_ACTION, REQUEST_FORGET_PASSWORD_ACTION, RESET_PASSWORD_ACTION, SET_CATEGORIES, SIGNUP_ACTION, VERIFY_EMAIL_ACTION, VERIFY_FORGET_PASSWORD_OTP_ACTION, } from "../action/types";
 import axios from "../../utils/axiosConfig";
 import { BASE_URL, END_POINTS } from "../../utils/config";
 
@@ -251,6 +251,29 @@ function* getSearchSaga(action) {
 }
 
 
+function* getBannerProducts(payload) {
+    // console.log(`payload --->>>`, payload);
+
+    return yield call(axios.post, `${BASE_URL}${END_POINTS.GET_BANNER_PRODUCTS}`, payload, {
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+}
+function* getBannerProductsSaga(action) {
+    try {
+        console.log('action--->>>>', action);
+        const response = yield call(getBannerProducts, action.payload)
+        // console.log('response=======>>>>>>>+++++', response.data);
+        action.callBack(response)
+    } catch (error) {
+        console.log('getCategories API Error:', error?.message || error); // safer logging
+        action.callBack(error);
+        console.log(`erorstack==============>>>>>>`, error.stack)
+    }
+}
+
+
 export function* authSaga() {
     yield takeLatest(LOGIN_ACTION, loginSaga);
     yield takeLatest(SIGNUP_ACTION, signupSaga);
@@ -264,5 +287,6 @@ export function* authSaga() {
     yield takeLatest(GET_PRODUCTS, getProductsSaga);
     yield takeLatest(GET_SEARCH, getSearchSaga);
     yield takeLatest(EDIT_PROFILE, editProfileSaga);
+    yield takeLatest(GET_BANNER_PRODUCTS, getBannerProductsSaga);
 }
 export default authSaga;

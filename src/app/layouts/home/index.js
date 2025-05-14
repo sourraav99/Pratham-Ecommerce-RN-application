@@ -18,6 +18,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getBannersAction, getCategoriesAction, getProductsAction } from '../../../redux/action';
 import Toast from "react-native-simple-toast";
 import { addToFavourites, removeFromFavourites } from '../../../redux/slices/favouritesSlice';
+import FilterModal from '../../components/filter';
 
 
 const Home = () => {
@@ -31,6 +32,7 @@ const Home = () => {
   const [variantQuantities, setVariantQuantities] = useState({});
   const [bannerImages, setBannerImages] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [isFilterVisible, setIsFilterVisible] = useState(false);
 
 
   useEffect(() => {
@@ -208,7 +210,7 @@ const Home = () => {
                 {/* <TextComp style={{ fontSize: scale(12), marginTop: scale(3), color: COLORS.secondaryAppColor }}>
                   Pioneer
                 </TextComp> */}
-                <TextComp numberOfLines={2} style={{ fontSize: scale(13), fontWeight: `900`, color: COLORS.secondaryAppColor }}>
+                <TextComp numberOfLines={2} style={{ fontSize: scale(13), fontWeight: `900`, color: COLORS.secondaryAppColor,height:height*0.050 }}>
                   {item.product_name}
                 </TextComp>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: verticalScale(6) }}>
@@ -222,7 +224,7 @@ const Home = () => {
                 </View>
                 {item.variants && item.variants.length > 0 ? (
                   <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <TextComp style={{ fontSize: scale(12), color: COLORS.secondaryAppColor }}>
+                    <TextComp numberOfLines={1} style={{ fontSize: scale(12), color: COLORS.secondaryAppColor,maxWidth:width*0.25 }}>
                       {`Size: ${item.variants[0]?.size || 'N/A'}`}
                     </TextComp>
                     <TextComp
@@ -313,7 +315,7 @@ const Home = () => {
             <Carousel
               data={bannerImages}
               // onPressItem={(item, index) => console.log('Image pressed:', item)}
-              onPressItem={(item, index) => { navigation.navigate(SCREEN.CATEGORY_PRODUCT_SCREEN, { data: item }) }}
+              onPressItem={(item, index) => { navigation.navigate(SCREEN.CATEGORY_PRODUCT_SCREEN, { data: item , bannerClick: true,}) }}
               interval={4000}
               height={height * 0.2}
             />
@@ -362,7 +364,7 @@ const Home = () => {
   return (
 
     <Wrapper useTopInsets={true} childrenStyles={{ width: width }} safeAreaContainerStyle={{}}>
-      <StaticeHeader />
+      <StaticeHeader onpressFilter={() => setIsFilterVisible(true)}/>
       <FlatList
         ListHeaderComponent={renderHeader}
         showsVerticalScrollIndicator={false}
@@ -474,6 +476,7 @@ const Home = () => {
           </View>
         </View>
       )}
+      <FilterModal visible={isFilterVisible} onClose={() => setIsFilterVisible(false)} />
 
     </Wrapper>
 
