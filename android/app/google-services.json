@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "523484489495",
+    "project_id": "pratham-enterprises-1be3a",
+    "storage_bucket": "pratham-enterprises-1be3a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:523484489495:android:9c7171fc8c2f619d0b3952",
+        "android_client_info": {
+          "package_name": "com.pratham_enterprises"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCEWMq4xpwfnNbN5dItFHg4WlFSdV_esm8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

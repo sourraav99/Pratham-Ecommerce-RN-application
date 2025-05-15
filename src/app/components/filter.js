@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import Icon from '../../utils/icon'; // AntDesign assumed
 import TextComp from './textComp';
-import { scale } from 'react-native-size-matters';
+import { scale, verticalScale } from 'react-native-size-matters';
 import { COLORS } from '../../res/colors';
 
 const filterOptions = ['Brand', 'Price'];
@@ -130,7 +130,7 @@ const FilterModal = ({ visible, onClose }) => {
                     </View>
 
                     {/* Footer */}
-                    <View style={styles.footer}>
+                    <View style={[styles.footer,{paddingBottom:verticalScale(28)}]}>
                         <TouchableOpacity style={styles.clearBtn} onPress={handleClear}>
                             <TextComp style={{ color: COLORS.white }}>Clear</TextComp>
                         </TouchableOpacity>
@@ -240,3 +240,4 @@ const styles = StyleSheet.create({
 });
 
 export default FilterModal;
+

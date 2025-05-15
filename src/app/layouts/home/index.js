@@ -167,7 +167,7 @@ const Home = () => {
     )
   }
 
-  const renderProductItem = useCallback(({ item }) => {
+  const renderProductItem = ({ item }) => {
     // const favoriteIds = useMemo(() => new Set(favorites.map(f => f.id)), [favorites]);
 
     const isLiked = favorites.some(fav => fav.id === item.id);
@@ -192,7 +192,7 @@ const Home = () => {
               // height: verticalScale(120),
               // backgroundColor:'red'
             }}
-            resizeMode="contain"
+            resizeMode="cover"
           />
           <View
             style={{
@@ -260,7 +260,7 @@ const Home = () => {
       </TouchableOpacity>
     );
 
-  })
+  }
   const handleCategoryPress = useCallback((cat) => {
     navigation.navigate(SCREEN.CATEGORY_PRODUCT_SCREEN, { data: cat });
   }, [navigation]);
