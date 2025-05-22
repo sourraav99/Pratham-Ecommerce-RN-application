@@ -35,7 +35,7 @@ function* signup(payload) {
 }
 export function* signupSaga(action) {
     try {
-        console.log('action--->>>>', action);
+        // console.log('action--->>>>', action);
         const response = yield call(signup, action.payload);
         console.log('response=======>>>>>>>+++++', response.data);
         action.callBack(response)
@@ -59,7 +59,7 @@ export function* resetPasswordSaga(action) {
     try {
         // console.log('action--->>>>', action);
         const response = yield call(resetPassword, action.payload);
-        console.log('response=======>>>>>>>+++++', response.data);
+        // console.log('response=======>>>>>>>+++++', response.data);
         action.callBack(response)
     } catch (error) {
         console.error('password change failed:', error);
@@ -78,7 +78,7 @@ export function* verifyEmailSaga(action) {
     try {
         // console.log('action--->>>>', action);
         const response = yield call(verifyEmail, action.payload);
-        console.log('response=======>>>>>>>+++++', response.data);
+        // console.log('response=======>>>>>>>+++++', response.data);
         action.callBack(response)
     } catch (error) {
         console.error('verify Email failed:', error);
@@ -98,7 +98,7 @@ export function* forgotPasswordRequestSaga(action) {
     try {
         // console.log('action--->>>>', action);
         const response = yield call(forgotPasswordRequest, action.payload);
-        console.log('response=======>>>>>>>+++++', response.data);
+        // console.log('response=======>>>>>>>+++++', response.data);
         action.callBack(response)
     } catch (error) {
         console.error('forget password request api failed:', error);
@@ -117,7 +117,7 @@ export function* verifyForgotPasswordOtpSaga(action) {
     try {
         // console.log('action--->>>>', action);
         const response = yield call(verifyForgotPasswordOtp, action.payload);
-        console.log('response=======>>>>>>>+++++', response.data);
+        // console.log('response=======>>>>>>>+++++', response.data);
         action.callBack(response)
     } catch (error) {
         console.error('forget password OTP verification api failed:', error);
@@ -144,7 +144,7 @@ function* getCategories() {
 }
 function* getCategoriesSaga(action) {
     try {
-        console.log('action--->>>>', action);
+        // console.log('action--->>>>', action);
         const response = yield call(getCategories)
         // console.log('response=======>>>>>>>+++++', response.data);
         if (response?.data?.status) {
@@ -153,7 +153,7 @@ function* getCategoriesSaga(action) {
         }
         action.callBack(response)
     } catch (error) {
-        console.log('Categories API Error:', error?.message || error); // safer logging
+        // console.log('Categories API Error:', error?.message || error); // safer logging
         action.callBack({
             data: {
                 status: false,
@@ -174,12 +174,12 @@ function* getProductsByCategory(payload) {
 }
 function* getProductsByCategorySaga(action) {
     try {
-        console.log('action--->>>>', action);
+        // console.log('action--->>>>', action);
         const response = yield call(getProductsByCategory, action.payload)
         // console.log('response=======>>>>>>>+++++', response.data);
         action.callBack(response)
     } catch (error) {
-        console.log('getCategories API Error:', error?.message || error); // safer logging
+        // console.log('getCategories API Error:', error?.message || error); // safer logging
         action.callBack(error);
     }
 }
@@ -192,12 +192,12 @@ function* getProducts() {
 }
 function* getProductsSaga(action) {
     try {
-        console.log('action--->>>>', action);
+        // console.log('action--->>>>', action);
         const response = yield call(getProducts, action.payload)
         // console.log('response=======>>>>>>>+++++', response.data);
         action.callBack(response)
     } catch (error) {
-        console.log('getCategories API Error:', error?.message || error); // safer logging
+        // console.log('getCategories API Error:', error?.message || error); // safer logging
         action.callBack(error);
     }
 }
@@ -239,14 +239,14 @@ function* getSearch(payload) {
 }
 function* getSearchSaga(action) {
     try {
-        console.log('action--->>>>', action);
+        // console.log('action--->>>>', action);
         const response = yield call(getSearch, action.payload)
         // console.log('response=======>>>>>>>+++++', response.data);
         action.callBack(response)
     } catch (error) {
-        console.log('getCategories API Error:', error?.message || error); // safer logging
+        // console.log('getCategories API Error:', error?.message || error); // safer logging
         action.callBack(error);
-        console.log(`erorstack==============>>>>>>`, error.stack)
+        // console.log(`erorstack==============>>>>>>`, error.stack)
     }
 }
 
@@ -262,14 +262,14 @@ function* getBannerProducts(payload) {
 }
 function* getBannerProductsSaga(action) {
     try {
-        console.log('action--->>>>', action);
+        // console.log('action--->>>>', action);
         const response = yield call(getBannerProducts, action.payload)
         // console.log('response=======>>>>>>>+++++', response.data);
         action.callBack(response)
     } catch (error) {
-        console.log('getCategories API Error:', error?.message || error); // safer logging
+        // console.log('getCategories API Error:', error?.message || error); // safer logging
         action.callBack(error);
-        console.log(`erorstack==============>>>>>>`, error.stack)
+        // console.log(`erorstack==============>>>>>>`, error.stack)
     }
 }
 

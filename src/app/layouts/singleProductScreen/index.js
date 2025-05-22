@@ -12,6 +12,8 @@ import { IMAGES } from '../../../res/images';
 import Toast from "react-native-simple-toast";
 import { useDispatch, useSelector } from 'react-redux';
 import { addToFavourites, removeFromFavourites } from '../../../redux/slices/favouritesSlice';
+import { height } from '../../hooks/responsive';
+import { isIOS } from '../../hooks/platform';
 
 const { width } = Dimensions.get('window');
 
@@ -155,7 +157,7 @@ const SingleProductScreen = () => {
 
 
     return (
-        <Wrapper childrenStyles={{ backgroundColor: COLORS.white, flex: 1, width: width }}>
+        <Wrapper bottomInsetBgColor={COLORS.secondaryAppColor} childrenStyles={{ backgroundColor: COLORS.white, flex: 1, width: width }}>
             {/* Header */}
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
@@ -303,7 +305,7 @@ const styles = StyleSheet.create({
         paddingLeft: 10,
         backgroundColor: COLORS.white,
         flexDirection: 'row',
-        marginTop: verticalScale(250)
+        marginTop:isIOS()?height*0.30:height*0.33
     },
     thumbnailWrapper: {
         marginRight: 10,

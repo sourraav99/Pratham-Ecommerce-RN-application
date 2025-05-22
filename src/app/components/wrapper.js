@@ -4,7 +4,14 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { width } from '../hooks/responsive';
 import { COLORS } from '../../res/colors';
 
-const Wrapper = ({ children, safeAreaContainerStyle, useBottomInset = true, useTopInsets = true, childrenStyles }) => {
+const Wrapper = ({
+   children,
+    safeAreaContainerStyle,
+    useBottomInset = true,
+    useTopInsets = true,
+    childrenStyles,
+     bottomInsetBgColor = COLORS.white,
+  }) => {
   const insets = useSafeAreaInsets()
   return (
     <View style={[styles.safeAreaContainer, safeAreaContainerStyle]}>
@@ -13,7 +20,7 @@ const Wrapper = ({ children, safeAreaContainerStyle, useBottomInset = true, useT
       <View style={[styles.childrenStyles, childrenStyles]}>
         {children}
       </View>
-      {useBottomInset && <View style={{ paddingBottom: insets.bottom }} />}
+      {useBottomInset && <View style={{ paddingBottom: insets.bottom, backgroundColor: bottomInsetBgColor }} />}
       {/* <View style={{ paddingBottom: insets.bottom }} /> */}
     </View >
   );

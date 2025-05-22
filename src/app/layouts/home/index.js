@@ -1,5 +1,5 @@
-import { View, Text, TouchableOpacity, Image, FlatList, Alert, Button, } from 'react-native'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { View, TouchableOpacity, Image, FlatList, BackHandler, } from 'react-native'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import SystemNavigationBar from 'react-native-system-navigation-bar';
 import { COLORS } from '../../../res/colors';
 import Wrapper from '../../components/wrapper';
@@ -11,8 +11,7 @@ import TextComp from '../../components/textComp';
 import StaticeHeader from '../../components/staticeHeader';
 import Carousel from '../../components/carousel';
 import { GABRITO_MEDIUM } from '../../../../assets/fonts';
-import { productsData } from '../../../utils/data';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { SCREEN } from '..';
 import { useDispatch, useSelector } from 'react-redux';
 import { getBannersAction, getCategoriesAction, getProductsAction } from '../../../redux/action';
@@ -24,6 +23,7 @@ import FilterModal from '../../components/filter';
 const Home = () => {
   const navigation = useNavigation()
   const dispatch = useDispatch()
+  const flatListRef = useRef(null);
   const favorites = useSelector(state => state.favorites.items);
   const [products, setProducts] = useState([]);
   const [likedItems, setLikedItems] = useState([]);
@@ -33,11 +33,26 @@ const Home = () => {
   const [bannerImages, setBannerImages] = useState([]);
   const [categories, setCategories] = useState([]);
   const [isFilterVisible, setIsFilterVisible] = useState(false);
-
+  const [showScrollToTop, setShowScrollToTop] = useState(false);
 
   useEffect(() => {
     SystemNavigationBar.setNavigationColor(COLORS.primaryAppColor, 'dark'); // 'dark' makes buttons grey
   }, []);
+
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     const onBackPress = () => {
+  //       if (isFilterVisible) {
+  //         setIsFilterVisible(false)
+  //         return true
+  //       }
+  //       return false
+  //     }
+  //     BackHandler.addEventListener('hardwareBackPress', onBackPress);
+  //     return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+  //   },[isFilterVisible])
+  // )
+
 
   const fetchBanner = () => {
     // console.log('DISPATCHING BANNER ACTION'); // ✅ Check if this appears
@@ -60,7 +75,7 @@ const Home = () => {
 
         const categoryData = response?.data?.data
         setCategories(categoryData);
-        console.log('categories-------->>>', categoryData);
+        // console.log('categories-------->>>', categoryData);
 
       } else {
         Toast.show(response?.data?.message || "category fetch failed", Toast.LONG);
@@ -70,8 +85,8 @@ const Home = () => {
 
   const fetchProducts = () => {
     dispatch(getProductsAction((response) => {
-      console.log(`productsResponse${JSON.stringify(response?.data)}`);
-      console.log(`productsResponse length${response?.data?.data.length}`);
+      // console.log(`productsResponse${JSON.stringify(response?.data)}`);
+      // console.log(`productsResponse length${response?.data?.data.length}`);
       setProducts(response?.data?.data || [])
     }))
 
@@ -83,6 +98,18 @@ const Home = () => {
     fetchProducts()
   }, [])
 
+
+
+
+  const handleScroll = (event) => {
+    const y = event.nativeEvent.contentOffset.y;
+    // console.log('Scroll Y:', y);
+    setShowScrollToTop(y > 300); // Show button if scrolled beyond 300px
+  };
+
+  const scrollToTop = () => {
+    flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
+  };
 
   const increaseQuantity = (key) => {
     setVariantQuantities((prev) => ({
@@ -167,14 +194,15 @@ const Home = () => {
     )
   }
 
-  const renderProductItem = ({ item }) => {
-    // const favoriteIds = useMemo(() => new Set(favorites.map(f => f.id)), [favorites]);
-
+const ProductItem= React.memo(({item})=>{
+  console.log('product item render-------------');
+  
     const isLiked = favorites.some(fav => fav.id === item.id);
 
     return (
 
       <TouchableOpacity onPress={() => { navigateToSingleProductScreen(item) }} style={{ width: width, alignSelf: 'center', }}>
+
         <View
           style={{
             flexDirection: 'row',
@@ -185,15 +213,38 @@ const Home = () => {
             paddingVertical: verticalScale(5)
           }}
         >
-          <Image
-            source={{ uri: item.display_image }}
-            style={{
-              width: width * 0.92 * 0.4,
-              // height: verticalScale(120),
-              // backgroundColor:'red'
-            }}
-            resizeMode="cover"
-          />
+          <View style={{ width: width * 0.92 * 0.4, position: 'relative' }}>
+            <Image
+              source={{ uri: item.display_image }}
+              style={{
+                width: '100%',
+                height: verticalScale(90),
+                // aspectRatio: 2, // or your desired height
+                borderRadius: scale(8),
+              }}
+            />
+            {item?.best_products && (
+              <View style={{
+                position: 'absolute',
+                top: verticalScale(-5),
+                // left: 8,
+                backgroundColor: COLORS.blackOpacity(0.7),
+                paddingHorizontal: 6,
+                paddingVertical: 2,
+                // borderRadius: 4,
+                borderBottomRightRadius: 7,
+                zIndex: 10,
+                flexDirection: 'row',
+                alignItems: 'center'
+              }}>
+                <Image source={IMAGES.BEST_PRODUCT_ICON} style={{ height: verticalScale(13), width: verticalScale(13) }} />
+                <TextComp style={{ color: 'white', fontSize: scale(10) }}>{`Our best product`}</TextComp>
+              </View>
+            )}
+
+          </View>
+
+          {/* </View> */}
           <View
             style={{
               flex: 1,
@@ -202,6 +253,7 @@ const Home = () => {
               justifyContent: 'space-between',
             }}
           >
+
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', }}>
               <View style={{ flex: 1, paddingLeft: moderateScale(5) }}>
                 <TextComp style={{ fontSize: scale(12), marginTop: scale(3), color: COLORS.secondaryAppColor }}>
@@ -210,7 +262,7 @@ const Home = () => {
                 {/* <TextComp style={{ fontSize: scale(12), marginTop: scale(3), color: COLORS.secondaryAppColor }}>
                   Pioneer
                 </TextComp> */}
-                <TextComp numberOfLines={2} style={{ fontSize: scale(13), fontWeight: `900`, color: COLORS.secondaryAppColor,height:height*0.050 }}>
+                <TextComp numberOfLines={2} style={{ fontSize: scale(13), fontWeight: `900`, color: COLORS.secondaryAppColor, height: height * 0.050 }}>
                   {item.product_name}
                 </TextComp>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: verticalScale(6) }}>
@@ -224,7 +276,7 @@ const Home = () => {
                 </View>
                 {item.variants && item.variants.length > 0 ? (
                   <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <TextComp numberOfLines={1} style={{ fontSize: scale(12), color: COLORS.secondaryAppColor,maxWidth:width*0.25 }}>
+                    <TextComp numberOfLines={1} style={{ fontSize: scale(12), color: COLORS.secondaryAppColor, maxWidth: width * 0.25 }}>
                       {`Size: ${item.variants[0]?.size || 'N/A'}`}
                     </TextComp>
                     <TextComp
@@ -239,8 +291,8 @@ const Home = () => {
                   </View>
                 ) : (
                   <>
-                  <View style={{height:10,width:60,}}/>
-                    </>
+                    <View style={{ height: 10, width: 60, }} />
+                  </>
                   // <TextComp style={{ fontSize: scale(12), color: COLORS.secondaryAppColor }}>
                   //   No variants
                   // </TextComp>
@@ -259,11 +311,19 @@ const Home = () => {
         </View>
       </TouchableOpacity>
     );
+})
 
+
+  const renderProductItem = ({ item }) => {
+    return <ProductItem item={item} />
   }
+
+
   const handleCategoryPress = useCallback((cat) => {
     navigation.navigate(SCREEN.CATEGORY_PRODUCT_SCREEN, { data: cat });
   }, [navigation]);
+
+
   const CategoryItem = React.memo(({ cat, onPress }) => {
     return (
       <TouchableOpacity
@@ -315,7 +375,7 @@ const Home = () => {
             <Carousel
               data={bannerImages}
               // onPressItem={(item, index) => console.log('Image pressed:', item)}
-              onPressItem={(item, index) => { navigation.navigate(SCREEN.CATEGORY_PRODUCT_SCREEN, { data: item , bannerClick: true,}) }}
+              onPressItem={(item, index) => { navigation.navigate(SCREEN.CATEGORY_PRODUCT_SCREEN, { data: item, bannerClick: true, }) }}
               interval={4000}
               height={height * 0.2}
             />
@@ -361,26 +421,58 @@ const Home = () => {
     </View>
   );
 
+
+
   return (
 
     <Wrapper useTopInsets={true} childrenStyles={{ width: width }} safeAreaContainerStyle={{}}>
-      <StaticeHeader onpressFilter={() => setIsFilterVisible(true)}/>
+      <StaticeHeader onpressFilter={() => setIsFilterVisible(true)} />
       <FlatList
         ListHeaderComponent={renderHeader}
         showsVerticalScrollIndicator={false}
         numColumns={1}
         keyExtractor={(item) => item.id.toString()}
         data={products}
-        initialNumToRender={5}
-        maxToRenderPerBatch={10}
+        initialNumToRender={6}
+        maxToRenderPerBatch={6}
         updateCellsBatchingPeriod={50}
         removeClippedSubviews={true}
+        windowSize={10}
         key={(item) => { item.id }}
         renderItem={renderProductItem}
-
+        onScroll={handleScroll}
+        ref={flatListRef}
+        scrollEventThrottle={16}
         contentContainerStyle={{ paddingBottom: verticalScale(100) }}
+      // ListFooterComponent={<View style={{ height: 500, backgroundColor: 'red' }} />}
       />
+      {/* <View style={{height:500,backgroundColor:'red'}}/> */}
+      {showScrollToTop && (
+        // <View style={{flex:1}}>
+        <TouchableOpacity
+          onPress={scrollToTop}
+          style={{
+            position: 'absolute',
+            // bottom: verticalScale(120),
+            justifyContent: 'center',
+            top: verticalScale(60),
+            // right: 20,
+            backgroundColor: '#000',
+            padding: 10,
+            borderRadius: 30,
+            zIndex: 9999,
+            elevation: 10,
+            alignSelf: 'center',
+            flexDirection: 'row',
+            alignItems: 'center',
 
+          }}
+        >
+          <Icon name="arrowup" size={20} color="#fff" type='AntDesign' />
+          <TextComp style={{ paddingHorizontal: 5, color: COLORS.white }}>{`Scroll to top`}</TextComp>
+        </TouchableOpacity>
+        // </View>
+      )}
       {showVariantModal && (
         <View
           style={{
