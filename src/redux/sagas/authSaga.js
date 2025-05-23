@@ -1,5 +1,5 @@
 import { call, put, takeLatest } from "redux-saga/effects";
-import { EDIT_PROFILE, GET_BANNER_PRODUCTS, GET_BANNERS_ACTION, GET_CATEGORIES_ACTION, GET_PRODUCTS, GET_PRODUCTS_BY_CATEGORY, GET_SEARCH, LOGIN_ACTION, REQUEST_FORGET_PASSWORD_ACTION, RESET_PASSWORD_ACTION, SET_CATEGORIES, SIGNUP_ACTION, VERIFY_EMAIL_ACTION, VERIFY_FORGET_PASSWORD_OTP_ACTION, } from "../action/types";
+import { EDIT_PROFILE, GET_BANNER_PRODUCTS, GET_BANNERS_ACTION, GET_BRANDS, GET_BRANDS_ACTION, GET_CATEGORIES_ACTION, GET_PRODUCTS, GET_PRODUCTS_BY_CATEGORY, GET_SEARCH, LOGIN_ACTION, REQUEST_FORGET_PASSWORD_ACTION, RESET_PASSWORD_ACTION, SET_CATEGORIES, SIGNUP_ACTION, VERIFY_EMAIL_ACTION, VERIFY_FORGET_PASSWORD_OTP_ACTION, } from "../action/types";
 import axios from "../../utils/axiosConfig";
 import { BASE_URL, END_POINTS } from "../../utils/config";
 
@@ -185,16 +185,18 @@ function* getProductsByCategorySaga(action) {
 }
 
 
-function* getProducts() {
+function* getProducts(payload) {
     // console.log(`paylod--->>>`, payload);
 
-    return yield call(axios.get, `${BASE_URL}${END_POINTS.GET_PRODUCTS}`);
+    return yield call(axios.post, `${BASE_URL}${END_POINTS.GET_PRODUCTS}`,payload, {
+        headers: { 'Cache-Control': 'no-cache' },
+    });
 }
 function* getProductsSaga(action) {
     try {
         // console.log('action--->>>>', action);
         const response = yield call(getProducts, action.payload)
-        // console.log('response=======>>>>>>>+++++', response.data);
+        console.log('response=======>>>>>>>+++++', response.data);
         action.callBack(response)
     } catch (error) {
         // console.log('getCategories API Error:', error?.message || error); // safer logging
@@ -274,6 +276,29 @@ function* getBannerProductsSaga(action) {
 }
 
 
+function* getBrands(payload) {
+    // console.log(`payload --->>>`, payload);
+
+    return yield call(axios.post, `${BASE_URL}${END_POINTS.GET_BRANDS_END_POINT}`, {
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+}
+function* getBrandsSaga(action) {
+    try {
+        // console.log('action--->>>>', action);
+        const response = yield call(getBrands, action.payload)
+        // console.log('response=======>>>>>>>+++++', response.data);
+        action.callBack(response)
+    } catch (error) {
+        // console.log('getCategories API Error:', error?.message || error); // safer logging
+        action.callBack(error);
+        // console.log(`erorstack==============>>>>>>`, error.stack)
+    }
+}
+
+
 export function* authSaga() {
     yield takeLatest(LOGIN_ACTION, loginSaga);
     yield takeLatest(SIGNUP_ACTION, signupSaga);
@@ -288,5 +313,6 @@ export function* authSaga() {
     yield takeLatest(GET_SEARCH, getSearchSaga);
     yield takeLatest(EDIT_PROFILE, editProfileSaga);
     yield takeLatest(GET_BANNER_PRODUCTS, getBannerProductsSaga);
+    yield takeLatest(GET_BRANDS, getBrandsSaga);
 }
 export default authSaga;

@@ -13,54 +13,81 @@ import { scale, verticalScale } from 'react-native-size-matters';
 import { COLORS } from '../../res/colors';
 
 const filterOptions = ['Brand', 'Price'];
-
-const brandsList = ['Havells', 'Siemens', 'Bajaj', 'Polycab', 'V-Guard'];
 const priceRanges = ['Under ₹500', '₹500 - ₹1000', '₹1000 - ₹2000', 'Above ₹2000'];
 
-const FilterModal = ({ visible, onClose }) => {
+const FilterModal = ({ visible, onClose, brands = [], onApply }) => {
     const [selectedFilter, setSelectedFilter] = useState('Brand');
     const [selectedBrands, setSelectedBrands] = useState([]);
     const [selectedPrice, setSelectedPrice] = useState(null);
 
-    const toggleBrand = (brand) => {
-        setSelectedBrands((prev) =>
-            prev.includes(brand) ? prev.filter(b => b !== brand) : [...prev, brand]
+    const toggleBrand = (id) => {
+        const numericId = Number(id);
+        setSelectedBrands(prev =>
+            prev.includes(numericId)
+                ? prev.filter(b => b !== numericId)
+                : [...prev, numericId]
         );
     };
 
     const handleApply = () => {
         const filterData = {
-            brands: selectedBrands,
-            price: selectedPrice,
+            brands: selectedBrands.map(Number),
         };
-        console.log('Applied Filters:', filterData);
+
+        if (selectedPrice) {
+            let min = 0;
+            let max = 999999;
+
+            if (selectedPrice === 'Under ₹500') {
+                max = 500;
+            } else if (selectedPrice === '₹500 - ₹1000') {
+                min = 500;
+                max = 1000;
+            } else if (selectedPrice === '₹1000 - ₹2000') {
+                min = 1000;
+                max = 2000;
+            } else if (selectedPrice === 'Above ₹2000') {
+                min = 2000;
+                max = 999999;
+            }
+
+            filterData.price_range = { min, max };
+        }
+
+        if (onApply) {
+            onApply(filterData);
+        }
         onClose();
     };
 
     const handleClear = () => {
         setSelectedBrands([]);
         setSelectedPrice(null);
+        if (onApply) {
+            onApply({}); // <- Trigger API with empty payload
+        }
+        onClose(); // Optional: remove this if you don't want to close the modal on Clear
     };
+
 
     const renderFilterContent = () => {
         switch (selectedFilter) {
             case 'Brand':
                 return (
                     <View style={styles.optionContainer}>
-                        {brandsList.map((brand) => (
+                        {brands.map((brand) => (
                             <TouchableOpacity
-                                key={brand}
-                                onPress={() => toggleBrand(brand)}
+                                key={brand.id}
+                                onPress={() => toggleBrand(brand.id)}
                                 style={styles.checkboxRow}
                             >
-                                 <TextComp style={styles.checkboxLabel}>{brand}</TextComp>
+                                <TextComp style={styles.checkboxLabel}>{brand.name}</TextComp>
                                 <Icon
                                     type="AntDesign"
-                                    name={selectedBrands.includes(brand) ? 'checkcircle' : 'checkcircleo'}
+                                    name={selectedBrands.includes(Number(brand.id)) ? 'checkcircle' : 'checkcircleo'}
                                     size={20}
-                                    color={selectedBrands.includes(brand) ? COLORS.primaryAppColor : '#ccc'}
+                                    color={selectedBrands.includes(Number(brand.id)) ? COLORS.primaryAppColor : '#ccc'}
                                 />
-                               
                             </TouchableOpacity>
                         ))}
                     </View>
@@ -94,7 +121,6 @@ const FilterModal = ({ visible, onClose }) => {
         <Modal visible={visible} animationType="slide" transparent>
             <View style={styles.overlay}>
                 <View style={styles.modalContainer}>
-
                     {/* Header */}
                     <View style={styles.header}>
                         <TouchableOpacity onPress={onClose}>
@@ -118,7 +144,12 @@ const FilterModal = ({ visible, onClose }) => {
                                     ]}
                                 >
                                     {selectedFilter === item && <View style={styles.activeBar} />}
-                                    <TextComp style={{ color: selectedFilter === item ? '#000' : '#666',fontWeight:selectedFilter === item ? '700' : '500' }}>{item}</TextComp>
+                                    <TextComp style={{
+                                        color: selectedFilter === item ? '#000' : '#666',
+                                        fontWeight: selectedFilter === item ? '700' : '500'
+                                    }}>
+                                        {item}
+                                    </TextComp>
                                 </TouchableOpacity>
                             ))}
                         </View>
@@ -130,7 +161,7 @@ const FilterModal = ({ visible, onClose }) => {
                     </View>
 
                     {/* Footer */}
-                    <View style={[styles.footer,{paddingBottom:verticalScale(28)}]}>
+                    <View style={[styles.footer, { paddingBottom: verticalScale(28) }]}>
                         <TouchableOpacity style={styles.clearBtn} onPress={handleClear}>
                             <TextComp style={{ color: COLORS.white }}>Clear</TextComp>
                         </TouchableOpacity>
@@ -138,7 +169,6 @@ const FilterModal = ({ visible, onClose }) => {
                             <TextComp style={{ color: COLORS.secondaryAppColor }}>Apply</TextComp>
                         </TouchableOpacity>
                     </View>
-
                 </View>
             </View>
         </Modal>
@@ -168,8 +198,7 @@ const styles = StyleSheet.create({
     headerTitle: {
         fontSize: scale(21),
         fontWeight: 'bold',
-        // marginLeft:5
-        color:COLORS.secondaryAppColor
+        color: COLORS.secondaryAppColor
     },
     body: {
         flexDirection: 'row',
@@ -207,8 +236,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         paddingVertical: 10,
-        justifyContent:'space-between',
-        paddingRight:7
+        justifyContent: 'space-between',
+        paddingRight: 7
     },
     checkboxLabel: {
         marginLeft: 10,
@@ -220,7 +249,7 @@ const styles = StyleSheet.create({
         padding: 15,
         borderTopWidth: 1,
         borderColor: '#eee',
-        backgroundColor:COLORS.secondaryAppColor
+        backgroundColor: COLORS.secondaryAppColor
     },
     clearBtn: {
         paddingVertical: 10,
@@ -231,13 +260,11 @@ const styles = StyleSheet.create({
     },
     applyBtn: {
         backgroundColor: COLORS.yellow,
-        // paddingVertical: 5,
         paddingHorizontal: 20,
         borderRadius: 8,
-        alignItems:'center',
-        justifyContent:'center'
+        alignItems: 'center',
+        justifyContent: 'center'
     },
 });
 
 export default FilterModal;
-

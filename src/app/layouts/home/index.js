@@ -1,4 +1,4 @@
-import { View, TouchableOpacity, Image, FlatList, BackHandler, } from 'react-native'
+import { View, TouchableOpacity, Image, FlatList, BackHandler, Button, } from 'react-native'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import SystemNavigationBar from 'react-native-system-navigation-bar';
 import { COLORS } from '../../../res/colors';
@@ -14,10 +14,11 @@ import { GABRITO_MEDIUM } from '../../../../assets/fonts';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { SCREEN } from '..';
 import { useDispatch, useSelector } from 'react-redux';
-import { getBannersAction, getCategoriesAction, getProductsAction } from '../../../redux/action';
+import { getBannersAction, getBrandsAction, getCategoriesAction, getProductsAction } from '../../../redux/action';
 import Toast from "react-native-simple-toast";
 import { addToFavourites, removeFromFavourites } from '../../../redux/slices/favouritesSlice';
 import FilterModal from '../../components/filter';
+import { dataqq } from '../../../utils/data';
 
 
 const Home = () => {
@@ -34,6 +35,8 @@ const Home = () => {
   const [categories, setCategories] = useState([]);
   const [isFilterVisible, setIsFilterVisible] = useState(false);
   const [showScrollToTop, setShowScrollToTop] = useState(false);
+  const [brands, setBrands] = useState([]);
+  const [filterPayload, setFilterPayload] = useState({});
 
   useEffect(() => {
     SystemNavigationBar.setNavigationColor(COLORS.primaryAppColor, 'dark'); // 'dark' makes buttons grey
@@ -54,6 +57,64 @@ const Home = () => {
   // )
 
 
+  const renderHeader = () => {
+    console.log('renderHeader render-------------');
+    return (
+      <View style={{}}>
+        {/* 🔹 Carousel */}
+        {
+          bannerImages.length > 0 && (
+            <View style={{ height: height * 0.2, marginTop: verticalScale(12) }}>
+              <Carousel
+                data={bannerImages}
+                // onPressItem={(item, index) => console.log('Image pressed:', item)}
+                onPressItem={(item, index) => { navigation.navigate(SCREEN.CATEGORY_PRODUCT_SCREEN, { data: item, bannerClick: true, }) }}
+                interval={4000}
+                height={height * 0.2}
+              />
+            </View>
+          )
+        }
+
+        {/* 🔹 Category Grid */}
+
+
+        <View style={{ marginTop: verticalScale(15), paddingHorizontal: scale(13) }}>
+          <TextComp style={{ fontSize: scale(14), marginBottom: verticalScale(8) }}>
+            Shop by category
+          </TextComp>
+
+          {categories.length > 0 && (
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
+              {categories.map((cat) => (
+                <CategoryItem key={cat.id} cat={cat} onPress={handleCategoryPress} />
+              ))}
+            </View>
+          )}
+
+        </View>
+        {/* <Button title='fetch pRODUCTS' onPress={fetchProducts} /> */}
+
+        {/* 🔹 Divider + Products Section */}
+        {
+          products.length > 0 && (
+            <TextComp
+              style={{
+                fontSize: scale(12),
+                fontFamily: GABRITO_MEDIUM,
+                marginLeft: scale(13),
+                marginTop: verticalScale(10),
+                marginBottom: verticalScale(10),
+              }}
+            >
+              Explore our best products
+            </TextComp>
+          )
+        }
+      </View>
+    )
+  }
+
   const fetchBanner = () => {
     // console.log('DISPATCHING BANNER ACTION'); // ✅ Check if this appears
     dispatch(getBannersAction((response) => {
@@ -65,6 +126,23 @@ const Home = () => {
 
       } else {
         Toast.show(response?.data?.message || "Banner fetch failed", Toast.LONG);
+      }
+    }));
+  };
+
+
+  const fetchbrand = () => {
+    // console.log('DISPATCHING BANNER ACTION'); // ✅ Check if this appears
+    dispatch(getBrandsAction((response) => {
+      // console.log('INSIDE CALLBACK'); // ✅ Check if this appears
+      if (response?.data?.status) {
+        const brands = response?.data?.data || [];
+        setBrands(brands)
+        console.log('brands-------->>>', brands);
+
+      } else {
+        console.log(response?.data?.message || "Banner fetch failed");
+        // Toast.show(response?.data?.message || "Banner fetch failed", Toast.LONG);
       }
     }));
   };
@@ -83,29 +161,30 @@ const Home = () => {
     }))
   }
 
-  const fetchProducts = () => {
-    dispatch(getProductsAction((response) => {
-      // console.log(`productsResponse${JSON.stringify(response?.data)}`);
-      // console.log(`productsResponse length${response?.data?.data.length}`);
-      setProducts(response?.data?.data || [])
-    }))
-
-  }
+  const fetchProducts = (customPayload) => {
+    const payload = customPayload || filterPayload || {};
+    console.log(`fetchProducts payload-----???????`,payload);
+    
+    dispatch(getProductsAction(payload, (response) => {
+      setProducts(response?.data?.data || []);
+    }));
+  };
 
   useEffect(() => {
     fetchCategories()
     fetchBanner()
     fetchProducts()
+    fetchbrand()
   }, [])
 
 
 
 
-  const handleScroll = (event) => {
+  const handleScroll = useCallback((event) => {
     const y = event.nativeEvent.contentOffset.y;
-    // console.log('Scroll Y:', y);
-    setShowScrollToTop(y > 300); // Show button if scrolled beyond 300px
-  };
+    if (y > 300 && !showScrollToTop) setShowScrollToTop(true);
+    else if (y <= 300 && showScrollToTop) setShowScrollToTop(false);
+  }, [showScrollToTop]);
 
   const scrollToTop = () => {
     flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
@@ -126,7 +205,9 @@ const Home = () => {
   };
 
   const navigateToSingleProductScreen = (item) => {
-    navigation.navigate(SCREEN.SINGLE_PRODUCT_SCREEN, { data: item })
+    // navigation.navigate(SCREEN.SINGLE_PRODUCT_SCREEN, { data: item })
+    console.log('length------->>>', products.length);
+
   }
 
   const toggleLike = (item) => {
@@ -194,9 +275,9 @@ const Home = () => {
     )
   }
 
-const ProductItem= React.memo(({item})=>{
-  console.log('product item render-------------');
-  
+  const ProductItem = React.memo(({ item }) => {
+    console.log('ProductItem item render-------------');
+
     const isLiked = favorites.some(fav => fav.id === item.id);
 
     return (
@@ -293,15 +374,7 @@ const ProductItem= React.memo(({item})=>{
                   <>
                     <View style={{ height: 10, width: 60, }} />
                   </>
-                  // <TextComp style={{ fontSize: scale(12), color: COLORS.secondaryAppColor }}>
-                  //   No variants
-                  // </TextComp>
                 )}
-
-                {/* <TextComp style={{ fontSize: scale(12), color: COLORS.secondaryAppColor }}>{`Unit:${item.mainSize.unit}`}
-                </TextComp> */}
-                {/* <TextComp style={{ fontSize: scale(12), color: COLORS.secondaryAppColor }}>{`Unit:L`}
-                </TextComp> */}
               </View>
               <TouchableOpacity onPress={() => toggleLike(item)} style={{ marginRight: moderateScale(10), marginTop: verticalScale(10) }}>
                 <Icon type="AntDesign" name="heart" size={scale(22)} color={isLiked ? COLORS.red : COLORS.secondaryAppColor} />
@@ -311,7 +384,7 @@ const ProductItem= React.memo(({item})=>{
         </View>
       </TouchableOpacity>
     );
-})
+  })
 
 
   const renderProductItem = ({ item }) => {
@@ -325,6 +398,7 @@ const ProductItem= React.memo(({item})=>{
 
 
   const CategoryItem = React.memo(({ cat, onPress }) => {
+    console.log('CategoryItem item render-------------');
     return (
       <TouchableOpacity
         activeOpacity={0.9}
@@ -366,67 +440,22 @@ const ProductItem= React.memo(({item})=>{
     );
   });
 
-  const renderHeader = () => (
-    <View style={{}}>
-      {/* 🔹 Carousel */}
-      {
-        bannerImages.length > 0 && (
-          <View style={{ height: height * 0.2, marginTop: verticalScale(12) }}>
-            <Carousel
-              data={bannerImages}
-              // onPressItem={(item, index) => console.log('Image pressed:', item)}
-              onPressItem={(item, index) => { navigation.navigate(SCREEN.CATEGORY_PRODUCT_SCREEN, { data: item, bannerClick: true, }) }}
-              interval={4000}
-              height={height * 0.2}
-            />
-          </View>
-        )
-      }
 
-      {/* 🔹 Category Grid */}
-
-
-      <View style={{ marginTop: verticalScale(15), paddingHorizontal: scale(13) }}>
-        <TextComp style={{ fontSize: scale(14), marginBottom: verticalScale(8) }}>
-          Shop by category
-        </TextComp>
-
-        {categories.length > 0 && (
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
-            {categories.map((cat) => (
-              <CategoryItem key={cat.id} cat={cat} onPress={handleCategoryPress} />
-            ))}
-          </View>
-        )}
-
-      </View>
-      {/* <Button title='fetch pRODUCTS' onPress={fetchProducts} /> */}
-
-      {/* 🔹 Divider + Products Section */}
-      {
-        products.length > 0 && (
-          <TextComp
-            style={{
-              fontSize: scale(12),
-              fontFamily: GABRITO_MEDIUM,
-              marginLeft: scale(13),
-              marginTop: verticalScale(10),
-              marginBottom: verticalScale(10),
-            }}
-          >
-            Explore our best products
-          </TextComp>
-        )
-      }
-    </View>
-  );
+  const handleApplyFilters = (filters) => {
+    setIsFilterVisible(false);
+    setFilterPayload(filters);
+    fetchProducts(filters);
+  };
 
 
 
   return (
 
     <Wrapper useTopInsets={true} childrenStyles={{ width: width }} safeAreaContainerStyle={{}}>
-      <StaticeHeader onpressFilter={() => setIsFilterVisible(true)} />
+      <StaticeHeader onpressFilter={() => {
+        setIsFilterVisible(true)
+        console.log('filter opened---!!!!!!!')
+      }} />
       <FlatList
         ListHeaderComponent={renderHeader}
         showsVerticalScrollIndicator={false}
@@ -444,23 +473,28 @@ const ProductItem= React.memo(({item})=>{
         ref={flatListRef}
         scrollEventThrottle={16}
         contentContainerStyle={{ paddingBottom: verticalScale(100) }}
-      // ListFooterComponent={<View style={{ height: 500, backgroundColor: 'red' }} />}
+        ListFooterComponent={() => {
+          return (
+            <View style={{ height: 500, backgroundColor: 'red' }} >
+              <Button onPress={fetchProducts} title='get brands' />
+            </View>
+          )
+        }}
       />
-      {/* <View style={{height:500,backgroundColor:'red'}}/> */}
+      {/* <View style={{ height: 500, backgroundColor: 'red' }} /> */}
       {showScrollToTop && (
         // <View style={{flex:1}}>
         <TouchableOpacity
           onPress={scrollToTop}
           style={{
             position: 'absolute',
-            // bottom: verticalScale(120),
             justifyContent: 'center',
             top: verticalScale(60),
             // right: 20,
             backgroundColor: '#000',
             padding: 10,
             borderRadius: 30,
-            zIndex: 9999,
+            zIndex: 100,
             elevation: 10,
             alignSelf: 'center',
             flexDirection: 'row',
@@ -481,6 +515,7 @@ const ProductItem= React.memo(({item})=>{
             left: 0,
             height: height,
             width: width,
+             zIndex: 200,
             backgroundColor: 'rgba(0,0,0,0.4)',
             justifyContent: 'center',
             paddingHorizontal: scale(20),
@@ -556,7 +591,6 @@ const ProductItem= React.memo(({item})=>{
                     flex: 1,
                   }}
                   onPress={() => {
-                    // TODO: Handle submit
                     setShowVariantModal(false);
                     setVariantQuantities({});
                   }}
@@ -568,7 +602,13 @@ const ProductItem= React.memo(({item})=>{
           </View>
         </View>
       )}
-      <FilterModal visible={isFilterVisible} onClose={() => setIsFilterVisible(false)} />
+      <FilterModal
+        visible={isFilterVisible}
+        onClose={() => setIsFilterVisible(false)}
+        brands={brands}
+        onApply={handleApplyFilters}
+      />
+
 
     </Wrapper>
 

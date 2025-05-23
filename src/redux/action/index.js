@@ -34,8 +34,8 @@ export const getProductsByCategoryAction = (payload, callBack) => ({
     type: TYPES['GET_PRODUCTS_BY_CATEGORY'], payload, callBack
 })
 
-export const getProductsAction = (callBack) => ({
-    type: TYPES['GET_PRODUCTS'], callBack
+export const getProductsAction = (payload, callBack) => ({
+    type: TYPES['GET_PRODUCTS'], payload, callBack
 })
 
 export const getSearchAction = (payload, callBack) => ({
@@ -48,3 +48,6 @@ export const getBannerProductsAction = (payload, callBack) => ({
     type: TYPES['GET_BANNER_PRODUCTS'], payload, callBack
 })
 
+export const getBrandsAction = (callBack) => ({
+    type: TYPES['GET_BRANDS'], callBack
+})

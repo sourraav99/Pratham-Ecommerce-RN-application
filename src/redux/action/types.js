@@ -12,3 +12,4 @@ export const GET_PRODUCTS = 'GET_PRODUCTS';
 export const GET_SEARCH = 'GET_SEARCH';
 export const EDIT_PROFILE = 'EDIT_PROFILE';
 export const GET_BANNER_PRODUCTS = 'GET_BANNER_PRODUCTS';
+export const GET_BRANDS = 'GET_BRANDS';
