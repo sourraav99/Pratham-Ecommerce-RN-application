@@ -28,7 +28,6 @@ export default function Routes() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [isConnected, setIsConnected] = useState(null);
-  // const [isLoggedIn, setIsLoggedIn] = useState(true)
 
 
   useEffect(() => {
@@ -41,7 +40,7 @@ export default function Routes() {
       } catch (err) {
         console.log('Login check error:', err);
       } finally {
-        setIsLoading(false); // ✅ Stop loading no matter what
+        setIsLoading(false);
       }
     };
 
@@ -53,62 +52,6 @@ export default function Routes() {
     return <Loading loadingText={'Checking login status...'} />;
   }
 
-  //   const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
-
-  //   useEffect(() => {
-  //     // Function to check internet status
-  //     const checkInternet = () => {
-  //       NetInfo.fetch().then((state) => {
-  //         setIsConnected(state.isConnected);
-  //       });
-  //     };
-
-  //     checkInternet(); // Initial check
-  //     const unsubscribe = NetInfo.addEventListener(checkInternet);
-  //     return () => unsubscribe(); // Cleanup on unmount
-  //   }, []);
-
-  //   useEffect(() => {
-  //     const checkLoginStatus = async () => {
-  //       try {
-  //         const token = await AsyncStorage.getItem('token');
-  //         const profileSetup = await AsyncStorage.getItem('isProfileSetup');
-
-  //         if (token && profileSetup === 'true') {
-  //           dispatch({ type: 'SET_LOGGED_IN', payload: true });
-  //         } else {
-  //           dispatch({ type: 'SET_LOGGED_OUT' });
-  //         }
-  //       } catch (error) {
-  //         console.error('Error checking login status:', error);
-  //       } finally {
-  //         setIsLoading(false); // Stop loading once the check is complete
-  //       }
-  //     };
-
-  //     if (isConnected) {
-  //       checkLoginStatus(); // Only check login if internet is available
-  //     }
-  //   }, [dispatch, isConnected]);
-
-  // Retry function to recheck internet
-  //   const handleRetry = () => {
-  //     NetInfo.fetch().then((state) => {
-  //       if (state.isConnected) {
-  //         setIsConnected(true);
-  //       }
-  //     });
-  //   };
-
-  // Show No Internet screen if no connection
-  //   if (isConnected === false) {
-  //     return <NoInternet onRetry={handleRetry} />;
-  //   }
-
-  // Show Loading screen while checking login status
-  //   if (isLoading) {
-  //     return <Loading loadingText={'Please Wait...'} />;
-  //   }
 
   return (
     <NavigationContainer theme={theme}>

@@ -16,16 +16,20 @@ import Toast from "react-native-simple-toast";
 import { IMAGES } from '../../../res/images'
 import { SCREEN } from '..'
 import { addToFavourites, removeFromFavourites } from '../../../redux/slices/favouritesSlice'
+import FilterModal from '../../components/filter'
 
 
 const CategoryProductsScreen = () => {
   const dispatch = useDispatch()
   const navigation = useNavigation()
+  const brands = useSelector(state => state.brands.list);
   const favorites = useSelector(state => state.favorites.items);
   const route = useRoute();
   const { data, bannerClick = false } = route?.params || {}; // default to false
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true); // initially true
+  const [isFilterVisible, setIsFilterVisible] = useState(false);
+  const [filterPayload, setFilterPayload] = useState(null);
 
 
   const toggleLike = (item) => {
@@ -40,37 +44,36 @@ const CategoryProductsScreen = () => {
     }
   };
 
-  const fetchProducts = () => {
-    setLoading(true); // start loading
-    const payload = {
+  const fetchProducts = (customPayload = null) => {
+    setLoading(true);
+    const basePayload = {
       category_id: data.id
-    }
+    };
+    console.log('basePayload------->> in cat ', basePayload);
+    console.log('customPayload------->> in cat ', customPayload);
+    console.log('brands------->> in cat ', brands);
+    const fullPayload = customPayload ? { ...basePayload, ...customPayload } : basePayload;
 
-    dispatch(getProductsByCategoryAction(payload, (response) => {
-      // console.log(`type of products--------->>>>>>>>>,${typeof response?.data}`);
-      // console.log(`response of products--------->>>>>>>>>${response?.data?.data}`);
+    dispatch(getProductsByCategoryAction(fullPayload, (response) => {
       if (response?.data?.status) {
-        setProducts(response?.data?.data || [])
-        console.log(`data---------------->>`, response?.data?.data);
-
+        setProducts(response?.data?.data || []);
       } else {
-        Toast.show(response?.data?.message || "Banner fetch failed", Toast.LONG);
+        Toast.show(response?.data?.message || "Product fetch failed", Toast.LONG);
       }
-      setLoading(false); // stop loading regardless of outcome
-    }))
-  }
+      setLoading(false);
+    }));
+  };
 
-  const fetchBannerProducts = () => {
+  const fetchBannerProducts = (customPayload = null) => {
     setLoading(true);
 
-    const payload = {
+    const basePayload = {
       banners_id: data?.id,
     };
 
-    // Replace this with your actual banner API call
-    dispatch(getBannerProductsAction(payload, (response) => {
-      console.log('loggggg==============>>>>>', response?.data);
+    const fullPayload = customPayload ? { ...basePayload, ...customPayload } : basePayload;
 
+    dispatch(getBannerProductsAction(fullPayload, (response) => {
       if (response?.data?.status) {
         setProducts(response?.data?.products || []);
       } else {
@@ -97,7 +100,7 @@ const CategoryProductsScreen = () => {
 
   }
 
-  const renderProductItem = ({ item }) =>{
+  const renderProductItem = ({ item }) => {
     const isLiked = favorites.some(fav => fav.id === item.id);
     return (
       <TouchableOpacity onPress={() => { navigateToSingleProductScreen(item) }} style={{ width: width, alignSelf: 'center', }}>
@@ -143,7 +146,7 @@ const CategoryProductsScreen = () => {
                   <TextComp style={{ fontSize: scale(20), fontWeight: `900`, color: COLORS.secondaryAppColor }}>{`₹${item.price}`}
                     <TextComp style={{ fontSize: scale(8), color: COLORS.secondaryAppColor }}> Incl GST</TextComp>
                   </TextComp>
-  
+
                   <TouchableOpacity style={{ backgroundColor: COLORS.black, position: 'absolute', right: -10, borderRadius: scale(30), paddingHorizontal: scale(14), paddingVertical: scale(9) }}>
                     <TextComp style={{ fontSize: scale(10), color: COLORS.white, }}>Add to cart</TextComp>
                   </TouchableOpacity>
@@ -171,7 +174,7 @@ const CategoryProductsScreen = () => {
                   //   No variants
                   // </TextComp>
                 )}
-  
+
                 {/* <TextComp style={{ fontSize: scale(12), color: COLORS.secondaryAppColor }}>{`Unit:${item.mainSize.unit}`}
               </TextComp> */}
                 {/* <TextComp style={{ fontSize: scale(12), color: COLORS.secondaryAppColor }}>{`Unit:L`}
@@ -188,7 +191,7 @@ const CategoryProductsScreen = () => {
   }
   return (
     <Wrapper useTopInsets={true} useBottomInset={true} childrenStyles={{ width: width }} safeAreaContainerStyle={{ flex: 1 }}>
-      <StaticeHeader headerLabel={data.name} />
+      <StaticeHeader headerLabel={data.name} onpressFilter={() => setIsFilterVisible(true)} />
       {/* <Button title='Button' onPress={fetchProducts} /> */}
       {loading ? (
         <View style={{ justifyContent: 'center', alignItems: 'center', height: height * 0.9 }}>
@@ -212,9 +215,23 @@ const CategoryProductsScreen = () => {
           contentContainerStyle={{ paddingBottom: isIOS() ? verticalScale(200) : verticalScale(100) }}
         />
       )}
+      {isFilterVisible && (
+        <FilterModal
+          visible={isFilterVisible}
+          onClose={() => setIsFilterVisible(false)}
+          brands={brands}
+          onApply={(filters) => {
+            setFilterPayload(filters);
+            setIsFilterVisible(false);
 
-      {/* <Image source={IMAGES.BLACK_LOGO_WITH_TEXT} style={{height:50,width:50}}/>
-        <View style={{}}/> */}
+            if (bannerClick) {
+              fetchBannerProducts(filters); // ✅ filters applied on banner
+            } else {
+              fetchProducts(filters); // ✅ filters applied on category
+            }
+          }}
+        />
+      )}
     </Wrapper>
   )
 }

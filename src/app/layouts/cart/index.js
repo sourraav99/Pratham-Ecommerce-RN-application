@@ -1,23 +1,57 @@
-import { View, ScrollView, TouchableOpacity, ActivityIndicator, Image, Pressable, FlatList, StyleSheet } from 'react-native';
+import { View,  TouchableOpacity, ActivityIndicator, Image, FlatList, StyleSheet, TextInput } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { moderateScale, scale, verticalScale } from 'react-native-size-matters';
 import Icon from '../../../utils/icon';
 import { COLORS } from '../../../res/colors';
-import { width } from '../../hooks/responsive';
+import { height, width } from '../../hooks/responsive';
 import TextComp from '../../components/textComp';
 import Wrapper from '../../components/wrapper';
 import { IMAGES } from '../../../res/images';
 import { useNavigation } from '@react-navigation/native';
 import { productsData } from '../../../utils/data';
+import { useDispatch, useSelector } from 'react-redux';
+import { clearCart } from '../../../redux/slices/cartSlice';
 
 const Cart = () => {
+  const dispatch = useDispatch()
   const [products, setProducts] = useState(productsData || []);
   const [paymentMethod, setPaymentMethod] = useState('cash'); // 'cash' or 'credit'
+
+
+  const subtotal = products.reduce((sum, item) => sum + (item.price * item.multiples), 0);
+  const discount = 100; // Optional: Make this dynamic
+  const total = subtotal - discount;
+  const cartItems = useSelector(state => state.cart.items);
+
+  const data = cartItems.length > 0 ? cartItems : products;
+
+  const handleRemoveAll = () => {
+    dispatch(clearCart())
+  }
 
   const renderFooter = () => {
     return (
 
       <View style={{ paddingHorizontal: moderateScale(16), paddingVertical: verticalScale(10), }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <Image source={IMAGES.REFRAL_CODE} style={{ height: verticalScale(20), width: verticalScale(20) }} resizeMode='contain' />
+          <TextComp style={{ fontSize: scale(16), fontWeight: 'bold', color: COLORS.black, paddingHorizontal: scale(10) }}>{`Use Referral Code`}</TextComp>
+
+        </View>
+        <View style={{ flexDirection: 'row', alignItems: 'center', borderRadius: scale(8), overflow: 'hidden', paddingHorizontal: 8, borderWidth: 1, borderColor: COLORS.borderColor, marginVertical: scale(10) }}>
+          <TextInput placeholder='Referral code' style={{ flex: 1, paddingVertical: 10, }} />
+          <TouchableOpacity>
+            <TextComp>{`Apply`}</TextComp>
+          </TouchableOpacity>
+        </View>
+        <View
+          style={{
+            borderBottomColor: '#ccc',
+            borderBottomWidth: 1,
+            borderStyle: 'dashed',
+            marginTop: verticalScale(10)
+          }}
+        />
         <View style={{ marginBottom: verticalScale(15) }}>
           <TextComp style={{ fontSize: scale(16), fontWeight: 'bold', marginBottom: verticalScale(8) }}>
             Select Payment Method
@@ -93,7 +127,7 @@ const Cart = () => {
   };
 
 
-  const renderProductItem = ({ item }) => {
+  const renderProductItem = ({ item, index }) => {
     // const isLiked = likedItems.includes(item._id);
     return (
 
@@ -109,10 +143,11 @@ const Cart = () => {
           }}
         >
           <Image
-            source={{ uri: item.image }}
+            source={IMAGES.NO_PRODUCT_IMG}
+            // source={{ uri: item.image }}
             style={{
               width: width * 0.92 * 0.4,
-              height: verticalScale(100),
+              height: height * 0.14,
             }}
             resizeMode="cover"
           />
@@ -127,35 +162,39 @@ const Cart = () => {
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', }}>
               <View style={{ flex: 1, paddingLeft: moderateScale(5) }}>
                 <TextComp style={{ fontSize: scale(12), marginTop: scale(3), color: COLORS.secondaryAppColor }}>
-                  {item.brand}
+                  {/* {item.brand} */}
+                  brand
                 </TextComp>
                 <TextComp numberOfLines={2} style={{ fontSize: scale(13), fontWeight: `500`, color: COLORS.secondaryAppColor }}>
-                  {item.description}
+                  {/* {item.description} */}
+                  description
                 </TextComp>
-                {/* <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                    
-  
-                    {/* <TouchableOpacity style={{ backgroundColor: COLORS.black, position: 'absolute', right: -10, borderRadius: scale(30), paddingHorizontal: scale(14), paddingVertical: scale(9) }}>
-                      <TextComp style={{ fontSize: scale(10), color: COLORS.white, }}>Add to cart</TextComp>
-                    </TouchableOpacity> */}
                 {/* </View> */}
                 <View style={{ flexDirection: 'row' }}>
-                  <TextComp style={{ fontSize: scale(12), color: COLORS.secondaryAppColor }}>{`Size:${item.mainSize.value}${item.mainSize.unit}`}
+                  <TextComp onPress={() => { console.log(`${item._id}-${index}`) }} style={{ fontSize: scale(12), color: COLORS.secondaryAppColor }}>
+                    {/* {`Size:${item.mainSize.value}${item.mainSize.unit}`} */}
+                    {`Size:12v`}
+
                   </TextComp>
-                  {/* <TextComp onPress={() => {
-                    setSelectedProduct(item);
-                    setShowVariantModal(true);
-                  }} style={{ marginLeft: scale(6), fontSize: scale(12), color: COLORS.blue, fontWeight: '800' }}>{`More`}
-                  </TextComp> */}
                 </View>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingRight: moderateScale(10) }}>
-                  <TextComp style={{ fontSize: scale(15), fontWeight: `900`, color: COLORS.secondaryAppColor }}>{`₹${item.price}`}
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingRight: moderateScale(10), alignItems: 'center', }}>
+                  <TextComp style={{ fontSize: scale(12), fontWeight: `900`, color: COLORS.secondaryAppColor }}>
+                    {/* {`₹${Number(item.price)} x ${Number(item.multiples)}`} */}
+                    {`₹12 x 2`}
                   </TextComp>
-                  <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
-                    <TextComp style={{ fontSize: scale(10), paddingRight: 5, color: COLORS.secondaryAppColor }}>total Amount</TextComp>
-                    <TextComp style={{ fontSize: scale(15), fontWeight: `900`, color: COLORS.secondaryAppColor }}>{`₹${item.price}`}
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <TextComp style={{ fontSize: scale(10), paddingRight: 5, color: COLORS.secondaryAppColor }}>total Amt.</TextComp>
+                    <TextComp style={{ fontSize: scale(13), fontWeight: `900`, color: COLORS.red, textDecorationLine: 'line-through' }}>
+                      {/* {`₹${item.price * item.multiples + 100}`} */}
+                      15000
                     </TextComp>
                   </View>
+                </View>
+                <View>
+                  <TextComp style={{ fontSize: scale(15), fontWeight: `900`, color: COLORS.green, }}>
+                    {/* {`₹${item.price * item.multiples}`} */}
+                    14000
+                  </TextComp>
                 </View>
               </View>
             </View>
@@ -201,7 +240,7 @@ const Cart = () => {
           </TouchableOpacity> */}
           <TextComp style={{ fontSize: scale(24), paddingLeft: 13, fontWeight: 'bold', color: COLORS.secondaryAppColor }}>{`Cart`}</TextComp>
         </View>
-        <TouchableOpacity style={{ backgroundColor: COLORS.red, paddingVertical: 8, paddingHorizontal: 8, borderRadius: 100, marginRight: moderateScale(16), marginTop: verticalScale(3) }}>
+        <TouchableOpacity onPress={handleRemoveAll} style={{ backgroundColor: COLORS.red, paddingVertical: 8, paddingHorizontal: 8, borderRadius: 100, marginRight: moderateScale(16), marginTop: verticalScale(3) }}>
           <TextComp style={{ fontSize: scale(12), color: COLORS.white }}>{`Remove all`}</TextComp>
         </TouchableOpacity>
       </View>
@@ -210,51 +249,53 @@ const Cart = () => {
         showsVerticalScrollIndicator={false}
         numColumns={1}
         ListFooterComponent={renderFooter}
-        data={products}
-        key={(item) => { item.id }}
-        // keyExtractor={(item) => item.id}
+        data={data}
+        keyExtractor={(item, index) => `${item._id}-${index}`}
         renderItem={renderProductItem}
 
         contentContainerStyle={{ paddingBottom: verticalScale(110) }}
       />
-     <View style={{    position: 'absolute', bottom:0,
+      <View style={{
+        position: 'absolute', bottom: 0,
         // elevation: 15,
 
-     }}>
-     <View style={{
-        // position: 'absolute',
-       
-        width: width,
-        backgroundColor: 'lightblue',
-        paddingVertical: verticalScale(10),
-        paddingHorizontal: moderateScale(16),
-        borderTopLeftRadius: scale(12),
-        borderTopRightRadius: scale(12),
-        borderColor: 'skyblue',
-        // #D4EDDA,#C3E6CB
-        borderWidth: 1,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        // elevation: 15,
-        // shadowColor: '#000',
-        // shadowOffset: { width: 0, height: -2 },
-        // shadowOpacity: 0.1,
-        // shadowRadius: scale(4),
       }}>
-        <TextComp style={{ color: '#155724', fontWeight: 'bold', fontSize: scale(14) }}>
-          You saved ₹2500 on this order!
-        </TextComp>
-        <Icon type='Feather' name='check-circle' color={'#155724'} size={20} />
+        <View style={{
+          // position: 'absolute',
+
+          width: width,
+          backgroundColor: 'lightblue',
+          paddingVertical: verticalScale(10),
+          paddingHorizontal: moderateScale(16),
+          borderTopLeftRadius: scale(12),
+          borderTopRightRadius: scale(12),
+          borderColor: 'skyblue',
+          // #D4EDDA,#C3E6CB
+          borderWidth: 1,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          // elevation: 15,
+          // shadowColor: '#000',
+          // shadowOffset: { width: 0, height: -2 },
+          // shadowOpacity: 0.1,
+          // shadowRadius: scale(4),
+        }}>
+          <TextComp style={{ color: '#155724', fontWeight: 'bold', fontSize: scale(14) }}>
+            You saved ₹2500 on this order!
+          </TextComp>
+          <Icon type='Feather' name='check-circle' color={'#155724'} size={20} />
+        </View>
+        <View style={styles.bottomBar}>
+          {/* <TextComp style={styles.bottomPrice}>₹{product.price}</TextComp> */}
+          <TextComp style={styles.bottomPrice}>₹{`700`}</TextComp>
+          <TouchableOpacity onPress={() => {
+            console.log(`cartItems----->`, cartItems);
+          }} style={styles.addToCartBtn}>
+            <TextComp style={styles.addToCartText}>Proceed to buy</TextComp>
+          </TouchableOpacity>
+        </View>
       </View>
-      <View style={styles.bottomBar}>
-        {/* <TextComp style={styles.bottomPrice}>₹{product.price}</TextComp> */}
-        <TextComp style={styles.bottomPrice}>₹{`700`}</TextComp>
-        <TouchableOpacity style={styles.addToCartBtn}>
-          <TextComp style={styles.addToCartText}>Proceed to buy</TextComp>
-        </TouchableOpacity>
-      </View>
-     </View>
 
     </Wrapper>
   )

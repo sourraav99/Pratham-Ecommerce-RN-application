@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { View, FlatList, Image, TouchableOpacity } from 'react-native';
 import { width, height } from '../hooks/responsive';
 
@@ -19,10 +19,11 @@ const CarouselItem = React.memo(({ item, index, onPressItem, borderRadius }) => 
   </View>
 ));
 
-const Carousel = ({ data = [], onPressItem = () => {}, interval = 3000, borderRadius = 20 }) => {
+const Carousel = ({ data = [], onPressItem = () => { }, interval = 3000, borderRadius = 20 }) => {
   const flatListRef = useRef(null);
   const currentIndexRef = useRef(0);
   const [currentIndex, setCurrentIndex] = useState(0);
+
 
   useEffect(() => {
     if (!data.length) return;
@@ -37,13 +38,16 @@ const Carousel = ({ data = [], onPressItem = () => {}, interval = 3000, borderRa
     return () => clearInterval(timer);
   }, [data.length, interval]);
 
-  const renderItem = ({ item, index }) => (
-    <CarouselItem
-      item={item}
-      index={index}
-      onPressItem={onPressItem}
-      borderRadius={borderRadius}
-    />
+  const renderItem = useCallback(
+    ({ item, index }) => (
+      <CarouselItem
+        item={item}
+        index={index}
+        onPressItem={onPressItem}
+        borderRadius={borderRadius}
+      />
+    ),
+    [onPressItem, borderRadius]
   );
 
   return (

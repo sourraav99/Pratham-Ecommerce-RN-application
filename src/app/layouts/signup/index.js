@@ -16,6 +16,8 @@ import { isIOS } from '../../hooks/platform'
 import Toast from 'react-native-simple-toast';
 import { useDispatch } from 'react-redux'
 import { signupAction } from '../../../redux/action'
+import CustomDropdown from '../../components/dropdown'
+import { indianStates } from '../../../utils/data'
 
 const Signup = () => {
   const dispatch = useDispatch()
@@ -165,7 +167,15 @@ const Signup = () => {
         <TextInputComp value={gstNumber} onChangeText={setGstNumber} placeholder={'GST Number'} label={'GST Number'} style={{ marginTop: verticalScale(12) }} />
         <TextInputComp value={businessAddress} onChangeText={setBusinessAddress} placeholder={'Business Address'} label={'Business Address'} style={{ marginTop: verticalScale(12) }} />
         <TextInputComp value={city} onChangeText={setCity} placeholder={'City'} label={'City'} style={{ marginTop: verticalScale(12) }} />
-        <TextInputComp value={state} onChangeText={setState} placeholder={'State'} label={'State'} style={{ marginTop: verticalScale(12) }} />
+        {/* <TextInputComp value={state} onChangeText={setState} placeholder={'State'} label={'State'} style={{ marginTop: verticalScale(12) }} /> */}
+        <CustomDropdown
+          items={indianStates}
+          selectedValue={indianStates.find(s => s.value === state)} 
+          onValueChange={(item) => setState(item.value)} 
+          placeholder="Select your state"
+          label="State"
+          containerStyle={{ marginTop: verticalScale(12) }}
+        />
         <TextInputComp keyboardType={'phone-pad'} value={postalCode} onChangeText={setPostalCode} placeholder={'Postal Code'} label={'Postal Code'} style={{ marginTop: verticalScale(12) }} />
         <TextInputComp value={password} onChangeText={setPassword} secureTextEntry={true} showPasswordToggle={true} placeholder={'Enter your password'} label={'Password'} style={{ marginTop: verticalScale(12) }} />
         <TextInputComp value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry={true} showPasswordToggle={true} placeholder={'Confirm Password'} label={'Confirm Password'} style={{ marginTop: verticalScale(12) }} />

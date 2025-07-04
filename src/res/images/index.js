@@ -11,4 +11,5 @@ NO_PRODUCT:require('../images/noProduct.png'),
 REFRAL_CODE:require('../images/code.png'),
 WARRENTY:require('../images/warrenty.png'),
 BEST_PRODUCT_ICON:require('../images/bestProduct.png'),
+NO_PRODUCT_IMG:require('../images/no-products.webp'),
 }

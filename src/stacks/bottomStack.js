@@ -79,37 +79,3 @@ const BottomStack = ({navigation}) => {
 
 export default BottomStack;
 
-// const dynamicBottomTabHeight = () => {
-//   if (Platform.OS === "ios") {
-//       return verticalScale(60);
-//   } else {
-//       return verticalScale(50);
-//   }
-// };
-
-// const CONTAINER_HEIGHT = dynamicBottomTabHeight();
-
-    // Create scrollY only for HomeScreen
-    // const scrollY = React.useRef(new Animated.Value(0)).current;
-
-    // const diffClamp = Animated.diffClamp(scrollY, 0, CONTAINER_HEIGHT);
-    // const translateY = diffClamp.interpolate({
-    //     inputRange: [0, CONTAINER_HEIGHT],
-    //     outputRange: [0, CONTAINER_HEIGHT],
-    //     extrapolate: 'clamp',  // Ensures the value stays within bounds
-    // });
-
-      // Define resetTranslateY function
-    //   const resetTranslateY = () => {
-    //     scrollY.setValue(0); // Reset scrollY value to 0 when navigating between tabs
-    // };
-    // Listen to navigation state changes
-    // useEffect(() => {
-    //     const unsubscribe = navigation.addListener('state', (e) => {
-    //         // When switching tabs, reset the tab bar to fully visible
-    //         scrollY.setValue(0);  // Reset scrollY value to 0 when navigating between tabs
-    //         resetTranslateY();  // Reset translateY when navigating between tabs
-    //     });
-
-    //     return () => unsubscribe();
-    // }, [navigation]);
